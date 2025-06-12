@@ -784,11 +784,12 @@
                         <thead>
                             <tr>
                                 <th>Date</th>
-                                <th>Total Sales</th>
-                                <th>Total Profit</th>
-                                <th>Items Sold</th>
-                                <th>Transactions</th>
-                                <th>Avg Sale Value</th>
+                                <th>Item Name</th>
+                                <th>Customer Details</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total Amount</th>
+                                <th>Profit</th>
                             </tr>
                         </thead>
                         <tbody id="dailyReportTable">
@@ -1214,9 +1215,16 @@
             }
 
             // Validate phone number (only if provided)
-            if (customerPhone && !/^\d{10}$/.test(customerPhone.replace(/\D/g, ''))) {
-                showAlert('Please enter a valid 10-digit phone number or leave it empty!', 'error');
-                return;
+            // Validate and format phone number
+            let formattedPhone = 'N/A';
+            if (customerPhone) {
+                const cleanPhone = customerPhone.replace(/\D/g, '');
+                if (!/^\d{10}$/.test(cleanPhone)) {
+                    showAlert('Please enter a valid 10-digit phone number!', 'error');
+                    return;
+                }
+                // Format phone number as XXX-XXX-XXXX
+                formattedPhone = cleanPhone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
             }
 
             // Validate GST number format (if provided)
@@ -1236,19 +1244,37 @@
                 return;
             }
 
+            // Log the phone number for debugging
+            console.log('Phone number being saved:', customerPhone);
+            
             const saleData = {
                 itemId: parseInt(itemId),
                 quantity,
                 salePrice,
                 customerName,
-                customerPhone,
-                customerGST,
-                saleDate
+                customerPhone: formattedPhone,  // Save the formatted phone number
+                customerGST: customerGST,      // Save the actual GST
+                saleDate,
+                itemName: inventory.find(i => i.id == itemId)?.name || '',
+                totalAmount: quantity * salePrice,
+                profit: quantity * (salePrice - inventory.find(i => i.id == itemId)?.costPrice || 0)
             };
 
             try {
                 const newSale = await addSaleToServer(saleData);
-                sales.push(newSale);
+                
+                // Ensure all fields are present in the sale object
+                // Log the received sale data
+                console.log('Received sale data:', newSale);
+                
+                const completeNewSale = {
+                    ...newSale,
+                    customerPhone: formattedPhone,  // Use the formatted phone number
+                    customerGST: customerGST,      // Use the original GST
+                    itemName: item.name
+                };
+                
+                sales.push(completeNewSale);
                 
                 // Update local inventory
                 item.quantity -= quantity;
@@ -1948,70 +1974,75 @@
             const tbody = document.getElementById('dailyReportTable');
             tbody.innerHTML = '';
 
-            // Group sales by date
-            const dailyData = {};
-            
-            sales.forEach(sale => {
-                const saleDate = sale.saleDate;
-                if (saleDate >= startDate && saleDate <= endDate) {
-                    if (!dailyData[saleDate]) {
-                        dailyData[saleDate] = {
-                            totalSales: 0,
-                            totalProfit: 0,
-                            itemsSold: 0,
-                            transactions: 0
-                        };
-                    }
-                    
-                    dailyData[saleDate].totalSales += sale.totalAmount;
-                    dailyData[saleDate].totalProfit += sale.profit;
-                    dailyData[saleDate].itemsSold += sale.quantity;
-                    dailyData[saleDate].transactions += 1;
-                }
-            });
+            // Filter sales within date range and sort by date
+            const filteredSales = sales
+                .filter(sale => sale.saleDate >= startDate && sale.saleDate <= endDate)
+                .sort((a, b) => new Date(b.saleDate) - new Date(a.saleDate));
 
-            // Sort dates
-            const sortedDates = Object.keys(dailyData).sort((a, b) => new Date(b) - new Date(a));
-
-            if (sortedDates.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #6c757d;">No sales found for the selected date range</td></tr>';
+            if (filteredSales.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #6c757d;">No sales found for the selected date range</td></tr>';
                 return;
             }
 
-            sortedDates.forEach(date => {
-                const data = dailyData[date];
-                const avgSaleValue = data.totalSales / data.transactions;
+            // Group sales by date for summary
+            const dailyTotals = {};
+
+            filteredSales.forEach(sale => {
+                const item = inventory.find(i => i.id === sale.itemId);
+                const itemName = item ? item.name : 'Unknown Item';
+                
                 const row = document.createElement('tr');
                 
+                                    const customerDetails = `
+                        <div style="font-size: 13px;">
+                            <strong>${sale.customerName}</strong><br>
+                            <span style="color: #666;">📞 ${sale.customerPhone}</span><br>
+                            <span style="color: #007bff; font-size: 11px;">${sale.customerGST ? `GST: ${sale.customerGST}` : 'No GST'}</span>
+                        </div>
+                    `;
+                
                 row.innerHTML = `
-                    <td><strong>${new Date(date).toLocaleDateString()}</strong></td>
-                    <td style="color: #27ae60; font-weight: 600;">₹${data.totalSales.toLocaleString()}</td>
-                    <td style="color: #3498db; font-weight: 600;">₹${data.totalProfit.toLocaleString()}</td>
-                    <td>${data.itemsSold}</td>
-                    <td>${data.transactions}</td>
-                    <td>₹${avgSaleValue.toFixed(2)}</td>
+                    <td>${new Date(sale.saleDate).toLocaleDateString()}</td>
+                    <td><strong>${itemName}</strong></td>
+                    <td>${customerDetails}</td>
+                    <td>${sale.quantity}</td>
+                    <td>₹${sale.salePrice.toFixed(2)}</td>
+                    <td style="color: #27ae60; font-weight: 600;">₹${sale.totalAmount.toFixed(2)}</td>
+                    <td style="color: ${sale.profit >= 0 ? '#27ae60' : '#e74c3c'}; font-weight: 600;">₹${sale.profit.toFixed(2)}</td>
                 `;
                 tbody.appendChild(row);
+
+                // Accumulate daily totals
+                if (!dailyTotals[sale.saleDate]) {
+                    dailyTotals[sale.saleDate] = {
+                        totalAmount: 0,
+                        totalProfit: 0,
+                        totalQuantity: 0
+                    };
+                }
+                dailyTotals[sale.saleDate].totalAmount += sale.totalAmount;
+                dailyTotals[sale.saleDate].totalProfit += sale.profit;
+                dailyTotals[sale.saleDate].totalQuantity += sale.quantity;
             });
 
-            // Add summary row
-            const totalSales = Object.values(dailyData).reduce((sum, day) => sum + day.totalSales, 0);
-            const totalProfit = Object.values(dailyData).reduce((sum, day) => sum + day.totalProfit, 0);
-            const totalItems = Object.values(dailyData).reduce((sum, day) => sum + day.itemsSold, 0);
-            const totalTransactions = Object.values(dailyData).reduce((sum, day) => sum + day.transactions, 0);
-            
-            const summaryRow = document.createElement('tr');
-            summaryRow.style.backgroundColor = '#f8f9fa';
-            summaryRow.style.fontWeight = '600';
-            summaryRow.innerHTML = `
-                <td><strong>📊 TOTAL</strong></td>
-                <td style="color: #27ae60;"><strong>₹${totalSales.toLocaleString()}</strong></td>
-                <td style="color: #3498db;"><strong>₹${totalProfit.toLocaleString()}</strong></td>
-                <td><strong>${totalItems}</strong></td>
-                <td><strong>${totalTransactions}</strong></td>
-                <td><strong>₹${(totalSales / totalTransactions).toFixed(2)}</strong></td>
+            // Add grand total row
+            const grandTotal = {
+                totalAmount: filteredSales.reduce((sum, sale) => sum + sale.totalAmount, 0),
+                totalProfit: filteredSales.reduce((sum, sale) => sum + sale.profit, 0),
+                totalQuantity: filteredSales.reduce((sum, sale) => sum + sale.quantity, 0)
+            };
+
+            const totalRow = document.createElement('tr');
+            totalRow.style.backgroundColor = '#f8f9fa';
+            totalRow.style.fontWeight = '600';
+            totalRow.innerHTML = `
+                <td colspan="3"><strong>📊 GRAND TOTAL</strong></td>
+                <td><strong>${grandTotal.totalQuantity}</strong></td>
+                <td></td>
+                <td style="color: #27ae60;"><strong>₹${grandTotal.totalAmount.toFixed(2)}</strong></td>
+                <td style="color: ${grandTotal.totalProfit >= 0 ? '#27ae60' : '#e74c3c'};"><strong>₹${grandTotal.totalProfit.toFixed(2)}</strong></td>
             `;
-            tbody.appendChild(summaryRow);
+            tbody.appendChild(totalRow);
         }
 
         // Chart instances storage
