@@ -1,0 +1,142 @@
+{
+  "inventory": [
+    {
+      "id": 1749733135191,
+      "name": "mohan",
+      "category": "Bags",
+      "warehouse": "Main",
+      "quantity": 470,
+      "costPrice": 10,
+      "sellingPrice": 12,
+      "supplier": "hyderbad",
+      "minStock": 50,
+      "dateAdded": "2025-06-12"
+    },
+    {
+      "id": 1749737480547,
+      "name": "vistara 90",
+      "category": "Household",
+      "warehouse": "A",
+      "quantity": 193,
+      "costPrice": 20,
+      "sellingPrice": 22,
+      "supplier": "golden",
+      "minStock": 1,
+      "dateAdded": "2025-06-12"
+    },
+    {
+      "id": 1749737588155,
+      "name": "vistara 99",
+      "category": "Household",
+      "warehouse": "A",
+      "quantity": 1536,
+      "costPrice": 24,
+      "sellingPrice": 27,
+      "supplier": "golden",
+      "minStock": 1,
+      "dateAdded": "2025-06-12"
+    },
+    {
+      "id": 1749737670764,
+      "name": "vistara 999",
+      "category": "Household",
+      "warehouse": "A",
+      "quantity": 202,
+      "costPrice": 38,
+      "sellingPrice": 42,
+      "supplier": "golden",
+      "minStock": 1,
+      "dateAdded": "2025-06-12"
+    },
+    {
+      "id": 1749737789677,
+      "name": "picnik 9999",
+      "category": "Household",
+      "warehouse": "A",
+      "quantity": 588,
+      "costPrice": 48,
+      "sellingPrice": 53,
+      "supplier": "golden",
+      "minStock": 1,
+      "dateAdded": "2025-06-12"
+    },
+    {
+      "id": 1749737895595,
+      "name": "foot ball",
+      "category": "Household",
+      "warehouse": "A",
+      "quantity": 1246,
+      "costPrice": 26,
+      "sellingPrice": 29,
+      "supplier": "golden",
+      "minStock": 1,
+      "dateAdded": "2025-06-12"
+    },
+    {
+      "id": 1749751290990,
+      "name": "visthara 90",
+      "category": "Bottles",
+      "warehouse": "B",
+      "quantity": 1200,
+      "costPrice": 35,
+      "sellingPrice": 40,
+      "supplier": "venkat",
+      "minStock": 0,
+      "dateAdded": "2025-06-12"
+    },
+    {
+      "id": 1749751436152,
+      "name": "sidhur",
+      "category": "Packaging",
+      "warehouse": "B",
+      "quantity": 930,
+      "costPrice": 100,
+      "sellingPrice": 120,
+      "supplier": "DM",
+      "minStock": 0,
+      "dateAdded": "2025-06-12"
+    }
+  ],
+  "sales": [
+    {
+      "id": 1749750014562,
+      "itemId": 1749737480547,
+      "itemName": "vistara 90",
+      "quantity": 180,
+      "salePrice": 25,
+      "totalAmount": 4500,
+      "costPrice": 20,
+      "profit": 900,
+      "customerName": "naveen",
+      "saleDate": "2025-06-12",
+      "warehouse": "A"
+    },
+    {
+      "id": 1749751525846,
+      "itemId": 1749751436152,
+      "itemName": "sidhur",
+      "quantity": 150,
+      "salePrice": 130,
+      "totalAmount": 19500,
+      "costPrice": 100,
+      "profit": 4500,
+      "customerName": "naveen",
+      "saleDate": "2025-06-12",
+      "warehouse": "B"
+    },
+    {
+      "id": 1749751763065,
+      "itemId": 1749751436152,
+      "itemName": "sidhur",
+      "quantity": 150,
+      "salePrice": 140,
+      "totalAmount": 21000,
+      "costPrice": 100,
+      "profit": 6000,
+      "customerName": "prasad",
+      "saleDate": "2025-06-12",
+      "warehouse": "B"
+    }
+  ],
+  "lastUpdated": "2025-06-12T18:09:23.065Z"
+}

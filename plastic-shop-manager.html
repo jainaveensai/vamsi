@@ -1,0 +1,2307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plastic Shop Management System</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #495057;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-tab:hover {
+            background: #e9ecef;
+            color: #2c3e50;
+        }
+
+        .nav-tab.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #2c3e50;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3498db;
+        }
+
+        .form-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2980b9, #1f5f8b);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #229954, #1e8449);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #c0392b, #a93226);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 12px;
+        }
+
+        .table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #fdfdfd;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .stat-card h3 {
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .stat-card p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .chart-container h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.4em;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .warehouse-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .warehouse-a { background: #e3f2fd; color: #1565c0; }
+        .warehouse-b { background: #f3e5f5; color: #7b1fa2; }
+        .warehouse-c { background: #e8f5e8; color: #2e7d32; }
+        .warehouse-main { background: #fff3e0; color: #ef6c00; }
+
+                    .profit-positive { color: #27ae60; font-weight: 600; }
+            .profit-negative { color: #e74c3c; font-weight: 600; }
+            
+            .customer-details {
+                line-height: 1.4;
+                font-size: 13px;
+            }
+            
+            .customer-phone {
+                color: #666;
+                font-size: 12px;
+            }
+            
+            .customer-gst {
+                color: #007bff;
+                font-size: 11px;
+                font-weight: 500;
+            }
+
+        .warehouse-clickable:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+        }
+
+        .warehouse-clickable:active {
+            transform: translateY(-2px);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #dee2e6;
+            border-radius: 25px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #3498db;
+            background: white;
+        }
+
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏪 Plastic Shop Management System</h1>
+            <p>Complete Inventory & Sales Management Solution</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="showTab('inventory')">📦 Inventory</button>
+            <button class="nav-tab" onclick="showTab('sales')">💰 Sales</button>
+            <button class="nav-tab" onclick="showTab('pricelist')">💲 Price List</button>
+            <button class="nav-tab" onclick="showTab('reports')">📈 Reports</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="totalItems">0</h3>
+                    <p>Total Items</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="totalValue">₹0</h3>
+                    <p>Inventory Value</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="todaySales">₹0</h3>
+                    <p>Today's Sales</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="todayProfit">₹0</h3>
+                    <p>Today's Profit</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>📊 Sales Overview (Last 7 Days)</h3>
+                <canvas id="salesChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h3>🏭 Warehouse Distribution</h3>
+                <canvas id="warehouseChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h3>📊 Warehouse Details</h3>
+                <div class="stats-grid">
+                    <div class="stat-card warehouse-clickable" onclick="showWarehouseDetails('A')" style="cursor: pointer; transition: transform 0.2s;">
+                        <h3 id="warehouseAItems">0</h3>
+                        <p>Warehouse A - Items</p>
+                        <small id="warehouseAValue" style="color: #27ae60; font-weight: 600;">₹0</small>
+                        <div style="margin-top: 10px; font-size: 12px; color: #666;">🔍 Click to view details</div>
+                    </div>
+                    <div class="stat-card warehouse-clickable" onclick="showWarehouseDetails('B')" style="cursor: pointer; transition: transform 0.2s;">
+                        <h3 id="warehouseBItems">0</h3>
+                        <p>Warehouse B - Items</p>
+                        <small id="warehouseBValue" style="color: #27ae60; font-weight: 600;">₹0</small>
+                        <div style="margin-top: 10px; font-size: 12px; color: #666;">🔍 Click to view details</div>
+                    </div>
+                    <div class="stat-card warehouse-clickable" onclick="showWarehouseDetails('C')" style="cursor: pointer; transition: transform 0.2s;">
+                        <h3 id="warehouseCItems">0</h3>
+                        <p>Warehouse C - Items</p>
+                        <small id="warehouseCValue" style="color: #27ae60; font-weight: 600;">₹0</small>
+                        <div style="margin-top: 10px; font-size: 12px; color: #666;">🔍 Click to view details</div>
+                    </div>
+                    <div class="stat-card warehouse-clickable" onclick="showWarehouseDetails('Main')" style="cursor: pointer; transition: transform 0.2s;">
+                        <h3 id="warehouseMainItems">0</h3>
+                        <p>Main Storage - Items</p>
+                        <small id="warehouseMainValue" style="color: #27ae60; font-weight: 600;">₹0</small>
+                        <div style="margin-top: 10px; font-size: 12px; color: #666;">🔍 Click to view details</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warehouse Details Table (Initially Hidden) -->
+            <div id="warehouseDetailsContainer" class="chart-container" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 id="warehouseDetailsTitle">📦 Warehouse Details</h3>
+                    <button class="btn btn-secondary" onclick="hideWarehouseDetails()" style="padding: 8px 15px; background: #6c757d;">❌ Close</button>
+                </div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Category</th>
+                                <th>Quantity</th>
+                                <th>Cost Price</th>
+                                <th>Selling Price</th>
+                                <th>Total Value</th>
+                                <th>Supplier</th>
+                                <th>Stock Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="warehouseDetailsTable">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Tab -->
+        <div id="inventory" class="tab-content">
+            <div class="form-section">
+                <h3 id="formTitle">➕ Add New Item</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Item Name</label>
+                        <input type="text" id="itemName" placeholder="Enter item name">
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="itemCategory">
+                            <option value="">Select Category</option>
+                            <option value="Containers">Containers</option>
+                            <option value="Bags">Bags</option>
+                            <option value="Bottles">Bottles</option>
+                            <option value="Packaging">Packaging</option>
+                            <option value="Household">Household</option>
+                            <option value="Industrial">Industrial</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Warehouse</label>
+                        <select id="itemWarehouse">
+                            <option value="">Select Warehouse</option>
+                            <option value="A">Warehouse A</option>
+                            <option value="B">Warehouse B</option>
+                            <option value="C">Warehouse C</option>
+                            <option value="Main">Main Storage</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity Calculation</label>
+                        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 120px;">
+                                <label style="font-size: 12px; color: #666;">Number of Bags/Packs</label>
+                                <input type="number" id="numberOfBags" placeholder="Bags" min="0" onchange="calculateTotalQuantity()" style="width: 100%;">
+                            </div>
+                            <div style="flex: 1; min-width: 120px;">
+                                <label style="font-size: 12px; color: #666;">Quantity per Bag</label>
+                                <input type="number" id="quantityPerBag" placeholder="Per bag" min="0" onchange="calculateTotalQuantity()" style="width: 100%;">
+                            </div>
+                            <div style="flex: 1; min-width: 120px;">
+                                <label style="font-size: 12px; color: #666;">Loose Items</label>
+                                <input type="number" id="looseItems" placeholder="Loose" min="0" onchange="calculateTotalQuantity()" style="width: 100%;" value="0">
+                            </div>
+                            <div style="flex: 1; min-width: 120px;">
+                                <label style="font-size: 12px; color: #666;">Total Quantity</label>
+                                <input type="number" id="itemQuantity" placeholder="Total" min="0" onchange="updateBagCalculation()" style="width: 100%; background: #f8f9fa;">
+                            </div>
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <small style="color: #666; font-size: 11px;">💡 <strong>Examples:</strong></small><br>
+                            <small style="color: #666; font-size: 10px;">• 5 bags × 20 items + 15 loose = 115 total items</small><br>
+                            <small style="color: #666; font-size: 10px;">• Or enter 115 directly in total quantity</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Cost Price (₹)</label>
+                        <input type="number" id="itemCostPrice" placeholder="Enter cost price" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Selling Price (₹)</label>
+                        <input type="number" id="itemSellingPrice" placeholder="Enter selling price" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Supplier</label>
+                        <input type="text" id="itemSupplier" placeholder="Enter supplier name">
+                    </div>
+                    <div class="form-group">
+                        <label>Minimum Stock Alert</label>
+                        <input type="number" id="itemMinStock" placeholder="Minimum stock level" min="0">
+                    </div>
+                </div>
+                <div id="formButtons">
+                    <button class="btn btn-primary" id="addButton" onclick="addItem()">➕ Add Item</button>
+                    <button class="btn btn-success" id="updateButton" onclick="updateItem()" style="display: none;">✅ Update Item</button>
+                    <button class="btn btn-secondary" id="cancelButton" onclick="cancelEdit()" style="display: none; background: #6c757d;">❌ Cancel</button>
+                </div>
+                <input type="hidden" id="editingItemId" value="">
+            </div>
+
+            <div class="table-container">
+                <input type="text" class="search-box" id="inventorySearch" placeholder="🔍 Search inventory..." onkeyup="filterInventory()">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Category</th>
+                            <th>Warehouse</th>
+                            <th>Quantity</th>
+                            <th>Cost Price</th>
+                            <th>Selling Price</th>
+                            <th>Total Value</th>
+                            <th>Supplier</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTable">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sales Tab -->
+        <div id="sales" class="tab-content">
+            <div class="form-section">
+                <h3>💰 Record Sale</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Select Item</label>
+                        <div style="position: relative;">
+                            <input type="text" id="itemSearchInput" placeholder="🔍 Search items..." 
+                                   style="width: 100%; padding: 12px; border: 2px solid #dee2e6; border-radius: 8px; font-size: 14px;"
+                                   onkeyup="filterItems()" onfocus="showItemDropdown()" onblur="hideItemDropdown()">
+                            <div id="itemDropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; max-height: 200px; overflow-y: auto; z-index: 1000; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                <!-- Items will be populated here -->
+                            </div>
+                        </div>
+                        <select id="saleItem" onchange="updateSaleItemDetails()" style="display: none;">
+                            <option value="">Select Item</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Available Stock</label>
+                        <input type="text" id="availableStock" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity Sold</label>
+                        <input type="number" id="saleQuantity" placeholder="Enter quantity" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Sale Price per Unit (₹)</label>
+                        <input type="number" id="salePrice" placeholder="Enter sale price" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Customer Name</label>
+                        <input type="text" id="customerName" placeholder="Enter customer name">
+                    </div>
+                    <div class="form-group">
+                        <label>Customer Phone Number (Optional)</label>
+                        <input type="tel" id="customerPhone" placeholder="Enter phone number (e.g., 9876543210)">
+                    </div>
+                    <div class="form-group">
+                        <label>Customer GST Number (Optional)</label>
+                        <input type="text" id="customerGST" placeholder="Enter GST number (e.g., 22AAAAA0000A1Z5)" style="text-transform: uppercase;">
+                    </div>
+                    <div class="form-group">
+                        <label>Sale Date</label>
+                        <input type="date" id="saleDate">
+                    </div>
+                </div>
+                <button class="btn btn-success" onclick="recordSale()">💰 Record Sale</button>
+            </div>
+
+            <div class="table-container">
+                <input type="text" class="search-box" id="salesSearch" placeholder="🔍 Search sales..." onkeyup="filterSales()">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Item</th>
+                            <th>Customer Details</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total Amount</th>
+                            <th>Cost Price</th>
+                            <th>Profit</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesTable">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Price List Tab -->
+        <div id="pricelist" class="tab-content">
+            <div class="form-section">
+                <h3>💲 Product Price List & Catalog</h3>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; margin-bottom: 20px;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <input type="text" class="search-box" id="priceListSearch" placeholder="🔍 Search products..." onkeyup="filterPriceList()" style="margin-bottom: 0;">
+                    </div>
+                    <div>
+                        <select id="warehouseFilter" onchange="filterPriceList()" style="padding: 12px; border: 2px solid #dee2e6; border-radius: 8px; font-size: 14px;">
+                            <option value="">All Warehouses</option>
+                            <option value="A">Warehouse A</option>
+                            <option value="B">Warehouse B</option>
+                            <option value="C">Warehouse C</option>
+                            <option value="Main">Main Storage</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="categoryFilter" onchange="filterPriceList()" style="padding: 12px; border: 2px solid #dee2e6; border-radius: 8px; font-size: 14px;">
+                            <option value="">All Categories</option>
+                            <option value="Containers">Containers</option>
+                            <option value="Bags">Bags</option>
+                            <option value="Bottles">Bottles</option>
+                            <option value="Packaging">Packaging</option>
+                            <option value="Household">Household</option>
+                            <option value="Industrial">Industrial</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-success" onclick="exportPriceList()">📥 Export Full Details</button>
+                        <button class="btn btn-primary" onclick="exportCustomerPriceList()">👥 Export for Customers</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid" style="margin-bottom: 30px;">
+                <div class="stat-card">
+                    <h3 id="totalProducts">0</h3>
+                    <p>Total Products</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="avgSellingPrice">₹0</h3>
+                    <p>Average Selling Price</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="highestPrice">₹0</h3>
+                    <p>Highest Price</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="lowestPrice">₹0</h3>
+                    <p>Lowest Price</p>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th onclick="sortPriceList('name')" style="cursor: pointer;">Item Name 🔄</th>
+                            <th onclick="sortPriceList('category')" style="cursor: pointer;">Category 🔄</th>
+                            <th onclick="sortPriceList('warehouse')" style="cursor: pointer;">Warehouse 🔄</th>
+                            <th onclick="sortPriceList('quantity')" style="cursor: pointer;">Available Stock 🔄</th>
+                            <th onclick="sortPriceList('costPrice')" style="cursor: pointer;">Cost Price 🔄</th>
+                            <th onclick="sortPriceList('sellingPrice')" style="cursor: pointer;">Selling Price 🔄</th>
+                            <th onclick="sortPriceList('profit')" style="cursor: pointer;">Profit Margin 🔄</th>
+                            <th>Supplier</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="priceListTable">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports" class="tab-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="totalSalesAmount">₹0</h3>
+                    <p>Total Sales</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="totalProfitAmount">₹0</h3>
+                    <p>Total Profit</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="avgDailySales">₹0</h3>
+                    <p>Avg Daily Sales</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="lowStockItems">0</h3>
+                    <p>Low Stock Alerts</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>📈 Monthly Sales Trend</h3>
+                <canvas id="monthlyChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h3>🏷️ Category Performance</h3>
+                <canvas id="categoryChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h3>📅 Daily Sales Report</h3>
+                <div style="margin-bottom: 20px;">
+                    <label style="font-weight: 600; margin-right: 10px;">Select Date Range:</label>
+                    <input type="date" id="startDate" style="margin-right: 10px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <input type="date" id="endDate" style="margin-right: 10px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <button class="btn btn-primary" onclick="updateDailyReport()" style="padding: 8px 15px;">📊 Generate Report</button>
+                </div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Total Sales</th>
+                                <th>Total Profit</th>
+                                <th>Items Sold</th>
+                                <th>Transactions</th>
+                                <th>Avg Sale Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dailyReportTable">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>📊 Low Stock Alert</h3>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Current Stock</th>
+                                <th>Minimum Required</th>
+                                <th>Warehouse</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lowStockTable">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>💾 Data Management</h3>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="exportData()">📥 Download Backup</button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleFileImport(event)">
+                    <button class="btn btn-success" onclick="document.getElementById('importFile').click()">📤 Restore from Backup</button>
+                </div>
+                <p style="margin-top: 15px; color: #6c757d; font-size: 14px;">
+                    💡 <strong>Tip:</strong> Regular backups help protect your data. The backup file contains all inventory and sales data.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let inventory = [];
+        let sales = [];
+        const API_BASE = '';
+
+        // API Functions
+        async function fetchData() {
+            try {
+                const response = await fetch(`${API_BASE}/api/data`);
+                const data = await response.json();
+                inventory = data.inventory || [];
+                sales = data.sales || [];
+                return data;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                showAlert('Failed to load data from server', 'error');
+                return { inventory: [], sales: [] };
+            }
+        }
+
+        async function addItemToServer(itemData) {
+            try {
+                const response = await fetch(`${API_BASE}/api/inventory`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(itemData)
+                });
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to add item');
+                }
+                return result.item;
+            } catch (error) {
+                console.error('Error adding item:', error);
+                throw error;
+            }
+        }
+
+        async function updateItemOnServer(itemId, itemData) {
+            try {
+                const response = await fetch(`${API_BASE}/api/inventory/${itemId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(itemData)
+                });
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to update item');
+                }
+                return result.item;
+            } catch (error) {
+                console.error('Error updating item:', error);
+                throw error;
+            }
+        }
+
+        async function deleteItemFromServer(itemId) {
+            try {
+                const response = await fetch(`${API_BASE}/api/inventory/${itemId}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to delete item');
+                }
+                return result;
+            } catch (error) {
+                console.error('Error deleting item:', error);
+                throw error;
+            }
+        }
+
+        async function addSaleToServer(saleData) {
+            try {
+                const response = await fetch(`${API_BASE}/api/sales`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(saleData)
+                });
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to record sale');
+                }
+                return result.sale;
+            } catch (error) {
+                console.error('Error recording sale:', error);
+                throw error;
+            }
+        }
+
+        async function deleteSaleFromServer(saleId) {
+            try {
+                const response = await fetch(`${API_BASE}/api/sales/${saleId}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to delete sale');
+                }
+                return result;
+            } catch (error) {
+                console.error('Error deleting sale:', error);
+                throw error;
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', async function() {
+            await fetchData();
+            updateDashboard();
+            updateInventoryTable();
+            updateSalesTable();
+            updateSaleItemOptions();
+            updateReports();
+            document.getElementById('saleDate').value = new Date().toISOString().split('T')[0];
+        });
+
+        // Tab Management
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Update data when switching tabs
+            if (tabName === 'dashboard') updateDashboard();
+            if (tabName === 'pricelist') updatePriceList();
+            if (tabName === 'reports') updateReports();
+        }
+
+        // Inventory Management
+        async function addItem() {
+            const name = document.getElementById('itemName').value.trim();
+            const category = document.getElementById('itemCategory').value;
+            const warehouse = document.getElementById('itemWarehouse').value;
+            const quantity = parseInt(document.getElementById('itemQuantity').value);
+            const costPrice = parseFloat(document.getElementById('itemCostPrice').value);
+            const sellingPrice = parseFloat(document.getElementById('itemSellingPrice').value);
+            const supplier = document.getElementById('itemSupplier').value.trim();
+            const minStock = parseInt(document.getElementById('itemMinStock').value) || 0;
+
+            if (!name || !category || !warehouse || isNaN(quantity) || isNaN(costPrice) || isNaN(sellingPrice)) {
+                showAlert('Please fill all required fields!', 'error');
+                return;
+            }
+
+            if (sellingPrice < costPrice) {
+                if (!confirm('Selling price is lower than cost price. This will result in loss. Continue?')) {
+                    return;
+                }
+            }
+
+            const itemData = {
+                name,
+                category,
+                warehouse,
+                quantity,
+                costPrice,
+                sellingPrice,
+                supplier,
+                minStock
+            };
+
+            try {
+                const newItem = await addItemToServer(itemData);
+                inventory.push(newItem);
+                updateInventoryTable();
+                updateSaleItemOptions();
+                updateDashboard();
+                cancelEdit(); // This will clear form and reset UI
+                showAlert('Item added successfully!', 'success');
+            } catch (error) {
+                showAlert(error.message || 'Failed to add item', 'error');
+            }
+        }
+
+        async function deleteItem(id) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                try {
+                    await deleteItemFromServer(id);
+                    inventory = inventory.filter(item => item.id !== id);
+                    updateInventoryTable();
+                    updateSaleItemOptions();
+                    updateDashboard();
+                    showAlert('Item deleted successfully!', 'success');
+                } catch (error) {
+                    showAlert(error.message || 'Failed to delete item', 'error');
+                }
+            }
+        }
+
+        function editItem(id) {
+            const item = inventory.find(i => i.id === id);
+            if (!item) {
+                showAlert('Item not found!', 'error');
+                return;
+            }
+
+            // Fill form with item data
+            document.getElementById('itemName').value = item.name;
+            document.getElementById('itemCategory').value = item.category;
+            document.getElementById('itemWarehouse').value = item.warehouse;
+            document.getElementById('itemQuantity').value = item.quantity;
+            document.getElementById('itemCostPrice').value = item.costPrice;
+            document.getElementById('itemSellingPrice').value = item.sellingPrice;
+            document.getElementById('itemSupplier').value = item.supplier;
+            document.getElementById('itemMinStock').value = item.minStock;
+            document.getElementById('editingItemId').value = id;
+            
+            // Clear bag calculation fields when editing (since we don't store bag info)
+            document.getElementById('numberOfBags').value = '';
+            document.getElementById('quantityPerBag').value = '';
+            document.getElementById('looseItems').value = '0';
+
+            // Update form UI
+            document.getElementById('formTitle').textContent = '✏️ Edit Item';
+            document.getElementById('addButton').style.display = 'none';
+            document.getElementById('updateButton').style.display = 'inline-block';
+            document.getElementById('cancelButton').style.display = 'inline-block';
+
+            // Scroll to form
+            document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function updateItem() {
+            const itemId = parseInt(document.getElementById('editingItemId').value);
+            const name = document.getElementById('itemName').value.trim();
+            const category = document.getElementById('itemCategory').value;
+            const warehouse = document.getElementById('itemWarehouse').value;
+            const quantity = parseInt(document.getElementById('itemQuantity').value);
+            const costPrice = parseFloat(document.getElementById('itemCostPrice').value);
+            const sellingPrice = parseFloat(document.getElementById('itemSellingPrice').value);
+            const supplier = document.getElementById('itemSupplier').value.trim();
+            const minStock = parseInt(document.getElementById('itemMinStock').value) || 0;
+
+            if (!name || !category || !warehouse || isNaN(quantity) || isNaN(costPrice) || isNaN(sellingPrice)) {
+                showAlert('Please fill all required fields!', 'error');
+                return;
+            }
+
+            if (sellingPrice < costPrice) {
+                if (!confirm('Selling price is lower than cost price. This will result in loss. Continue?')) {
+                    return;
+                }
+            }
+
+            const itemData = {
+                name,
+                category,
+                warehouse,
+                quantity,
+                costPrice,
+                sellingPrice,
+                supplier,
+                minStock
+            };
+
+            try {
+                const updatedItem = await updateItemOnServer(itemId, itemData);
+                
+                // Update local inventory
+                const itemIndex = inventory.findIndex(i => i.id === itemId);
+                if (itemIndex !== -1) {
+                    inventory[itemIndex] = updatedItem;
+                }
+
+                updateInventoryTable();
+                updateSaleItemOptions();
+                updateDashboard();
+                cancelEdit();
+                showAlert('Item updated successfully!', 'success');
+            } catch (error) {
+                showAlert(error.message || 'Failed to update item', 'error');
+            }
+        }
+
+        function cancelEdit() {
+            // Reset form
+            clearInventoryForm();
+            document.getElementById('editingItemId').value = '';
+
+            // Reset form UI
+            document.getElementById('formTitle').textContent = '➕ Add New Item';
+            document.getElementById('addButton').style.display = 'inline-block';
+            document.getElementById('updateButton').style.display = 'none';
+            document.getElementById('cancelButton').style.display = 'none';
+        }
+
+        function calculateTotalQuantity() {
+            const numberOfBags = parseInt(document.getElementById('numberOfBags').value) || 0;
+            const quantityPerBag = parseInt(document.getElementById('quantityPerBag').value) || 0;
+            const looseItems = parseInt(document.getElementById('looseItems').value) || 0;
+            
+            // Calculate total: (bags × items per bag) + loose items
+            const baggedItems = numberOfBags * quantityPerBag;
+            const totalQuantity = baggedItems + looseItems;
+            
+            // Always update total quantity (even if it's just loose items)
+            document.getElementById('itemQuantity').value = totalQuantity;
+            
+            // Visual feedback when calculation happens
+            if (totalQuantity > 0 || looseItems > 0) {
+                document.getElementById('itemQuantity').style.background = '#e8f5e8';
+                setTimeout(() => {
+                    document.getElementById('itemQuantity').style.background = '#f8f9fa';
+                }, 1000);
+            }
+        }
+
+        function updateBagCalculation() {
+            const totalQuantity = parseInt(document.getElementById('itemQuantity').value) || 0;
+            const numberOfBags = parseInt(document.getElementById('numberOfBags').value) || 0;
+            const quantityPerBag = parseInt(document.getElementById('quantityPerBag').value) || 0;
+            const looseItems = parseInt(document.getElementById('looseItems').value) || 0;
+            
+            // If user enters total quantity directly, try to calculate bags (accounting for loose items)
+            const availableForBags = totalQuantity - looseItems;
+            
+            if (availableForBags > 0 && numberOfBags > 0 && quantityPerBag === 0) {
+                const calculatedPerBag = Math.round(availableForBags / numberOfBags);
+                document.getElementById('quantityPerBag').value = calculatedPerBag;
+            } else if (availableForBags > 0 && quantityPerBag > 0 && numberOfBags === 0) {
+                const calculatedBags = Math.round(availableForBags / quantityPerBag);
+                document.getElementById('numberOfBags').value = calculatedBags;
+            }
+        }
+
+        function clearInventoryForm() {
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemCategory').value = '';
+            document.getElementById('itemWarehouse').value = '';
+            document.getElementById('numberOfBags').value = '';
+            document.getElementById('quantityPerBag').value = '';
+            document.getElementById('looseItems').value = '0';
+            document.getElementById('itemQuantity').value = '';
+            document.getElementById('itemCostPrice').value = '';
+            document.getElementById('itemSellingPrice').value = '';
+            document.getElementById('itemSupplier').value = '';
+            document.getElementById('itemMinStock').value = '';
+        }
+
+        // Sales Management
+        function updateSaleItemDetails() {
+            const itemId = document.getElementById('saleItem').value;
+            const item = inventory.find(i => i.id == itemId);
+            
+            if (item) {
+                document.getElementById('availableStock').value = item.quantity;
+                document.getElementById('salePrice').value = item.sellingPrice;
+            } else {
+                document.getElementById('availableStock').value = '';
+                document.getElementById('salePrice').value = '';
+            }
+        }
+
+        async function recordSale() {
+            const itemId = document.getElementById('saleItem').value;
+            const quantity = parseInt(document.getElementById('saleQuantity').value);
+            const salePrice = parseFloat(document.getElementById('salePrice').value);
+            const customerName = document.getElementById('customerName').value.trim();
+            const customerPhone = document.getElementById('customerPhone').value.trim();
+            const customerGST = document.getElementById('customerGST').value.trim().toUpperCase();
+            const saleDate = document.getElementById('saleDate').value;
+
+            if (!itemId || isNaN(quantity) || isNaN(salePrice) || !customerName || !saleDate) {
+                showAlert('Please fill all required fields!', 'error');
+                return;
+            }
+
+            // Validate phone number (only if provided)
+            if (customerPhone && !/^\d{10}$/.test(customerPhone.replace(/\D/g, ''))) {
+                showAlert('Please enter a valid 10-digit phone number or leave it empty!', 'error');
+                return;
+            }
+
+            // Validate GST number format (if provided)
+            if (customerGST && !/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}$/.test(customerGST)) {
+                showAlert('Please enter a valid GST number format (e.g., 22AAAAA0000A1Z5) or leave it empty!', 'error');
+                return;
+            }
+
+            const item = inventory.find(i => i.id == itemId);
+            if (!item) {
+                showAlert('Item not found!', 'error');
+                return;
+            }
+
+            if (quantity > item.quantity) {
+                showAlert(`Insufficient stock! Available: ${item.quantity}`, 'error');
+                return;
+            }
+
+            const saleData = {
+                itemId: parseInt(itemId),
+                quantity,
+                salePrice,
+                customerName,
+                customerPhone,
+                customerGST,
+                saleDate
+            };
+
+            try {
+                const newSale = await addSaleToServer(saleData);
+                sales.push(newSale);
+                
+                // Update local inventory
+                item.quantity -= quantity;
+
+                updateInventoryTable();
+                updateSalesTable();
+                updateSaleItemOptions();
+                updateDashboard();
+                clearSalesForm();
+                showAlert('Sale recorded successfully!', 'success');
+            } catch (error) {
+                showAlert(error.message || 'Failed to record sale', 'error');
+            }
+        }
+
+        async function deleteSale(id) {
+            if (confirm('Are you sure you want to delete this sale? This will restore the inventory.')) {
+                const sale = sales.find(s => s.id === id);
+                if (sale) {
+                    try {
+                        await deleteSaleFromServer(id);
+                        
+                        // Restore local inventory
+                        const item = inventory.find(i => i.id == sale.itemId);
+                        if (item) {
+                            item.quantity += sale.quantity;
+                        }
+                        
+                        sales = sales.filter(s => s.id !== id);
+                        updateInventoryTable();
+                        updateSalesTable();
+                        updateDashboard();
+                        showAlert('Sale deleted and inventory restored!', 'success');
+                    } catch (error) {
+                        showAlert(error.message || 'Failed to delete sale', 'error');
+                    }
+                }
+            }
+        }
+
+        function clearSalesForm() {
+            document.getElementById('saleItem').value = '';
+            document.getElementById('itemSearchInput').value = '';
+            document.getElementById('availableStock').value = '';
+            document.getElementById('saleQuantity').value = '';
+            document.getElementById('salePrice').value = '';
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerPhone').value = '';
+            document.getElementById('customerGST').value = '';
+            document.getElementById('itemDropdown').style.display = 'none';
+        }
+
+        // Update Functions
+        function updateInventoryTable() {
+            const tbody = document.getElementById('inventoryTable');
+            tbody.innerHTML = '';
+
+            inventory.forEach(item => {
+                const row = document.createElement('tr');
+                const totalValue = item.quantity * item.costPrice;
+                const stockStatus = item.quantity <= item.minStock ? 
+                    '<span style="color: #e74c3c; font-weight: 600;">⚠️ Low Stock</span>' : 
+                    '<span style="color: #27ae60; font-weight: 600;">✅ In Stock</span>';
+                
+                const warehouseClass = `warehouse-${item.warehouse.toLowerCase()}`;
+                
+                row.innerHTML = `
+                    <td><strong>${item.name}</strong></td>
+                    <td>${item.category}</td>
+                    <td><span class="warehouse-badge ${warehouseClass}">${item.warehouse}</span></td>
+                    <td><strong>${item.quantity}</strong></td>
+                    <td>₹${item.costPrice.toFixed(2)}</td>
+                    <td>₹${item.sellingPrice.toFixed(2)}</td>
+                    <td><strong>₹${totalValue.toFixed(2)}</strong></td>
+                    <td>${item.supplier}</td>
+                    <td>${stockStatus}</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="editItem(${item.id})" style="padding: 5px 10px; font-size: 12px; margin-right: 5px;">✏️ Edit</button>
+                        <button class="btn btn-danger" onclick="deleteItem(${item.id})" style="padding: 5px 10px; font-size: 12px;">🗑️ Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateSalesTable() {
+            const tbody = document.getElementById('salesTable');
+            tbody.innerHTML = '';
+
+            sales.slice().reverse().forEach(sale => {
+                const row = document.createElement('tr');
+                const profitClass = sale.profit >= 0 ? 'profit-positive' : 'profit-negative';
+                
+                const customerDetails = `
+                    <div style="font-size: 13px;">
+                        <strong>${sale.customerName}</strong><br>
+                        <span style="color: #666;">📞 ${sale.customerPhone || 'N/A'}</span><br>
+                        ${sale.customerGST ? `<span style="color: #007bff; font-size: 11px;">GST: ${sale.customerGST}</span>` : '<span style="color: #999; font-size: 11px;">No GST</span>'}
+                    </div>
+                `;
+                
+                row.innerHTML = `
+                    <td>${new Date(sale.saleDate).toLocaleDateString()}</td>
+                    <td><strong>${sale.itemName}</strong></td>
+                    <td>${customerDetails}</td>
+                    <td>${sale.quantity}</td>
+                    <td>₹${sale.salePrice.toFixed(2)}</td>
+                    <td><strong>₹${sale.totalAmount.toFixed(2)}</strong></td>
+                    <td>₹${sale.costPrice.toFixed(2)}</td>
+                    <td class="${profitClass}">₹${sale.profit.toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deleteSale(${sale.id})" style="padding: 5px 10px; font-size: 12px;">🗑️ Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateSaleItemOptions() {
+            const select = document.getElementById('saleItem');
+            select.innerHTML = '<option value="">Select Item</option>';
+
+            inventory.filter(item => item.quantity > 0).forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = `${item.name} (Stock: ${item.quantity}) - ${item.warehouse}`;
+                select.appendChild(option);
+            });
+
+            // Also update the searchable dropdown
+            populateItemDropdown();
+        }
+
+        function populateItemDropdown() {
+            const dropdown = document.getElementById('itemDropdown');
+            dropdown.innerHTML = '';
+
+            const availableItems = inventory.filter(item => item.quantity > 0);
+            
+            if (availableItems.length === 0) {
+                dropdown.innerHTML = '<div style="padding: 10px; color: #666; text-align: center;">No items available</div>';
+                return;
+            }
+
+            availableItems.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.style.cssText = 'padding: 10px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background-color 0.2s;';
+                itemDiv.onmousedown = () => selectItem(item); // Use mousedown instead of click to prevent blur
+                itemDiv.onmouseover = () => itemDiv.style.backgroundColor = '#f8f9fa';
+                itemDiv.onmouseout = () => itemDiv.style.backgroundColor = 'white';
+                
+                const warehouseClass = `warehouse-${item.warehouse.toLowerCase()}`;
+                itemDiv.innerHTML = `
+                    <div style="font-weight: 600; color: #2c3e50;">${item.name}</div>
+                    <div style="font-size: 12px; color: #666; margin-top: 2px;">
+                        <span class="warehouse-badge ${warehouseClass}" style="margin-right: 10px;">${item.warehouse}</span>
+                        Stock: <strong>${item.quantity}</strong> | 
+                        Price: <strong>₹${item.sellingPrice}</strong> | 
+                        Category: ${item.category}
+                    </div>
+                `;
+                dropdown.appendChild(itemDiv);
+            });
+        }
+
+        function filterItems() {
+            const searchTerm = document.getElementById('itemSearchInput').value.toLowerCase();
+            const dropdown = document.getElementById('itemDropdown');
+            dropdown.innerHTML = '';
+
+            const availableItems = inventory.filter(item => 
+                item.quantity > 0 && 
+                (item.name.toLowerCase().includes(searchTerm) || 
+                 item.category.toLowerCase().includes(searchTerm) ||
+                 item.warehouse.toLowerCase().includes(searchTerm) ||
+                 item.supplier.toLowerCase().includes(searchTerm))
+            );
+
+            if (availableItems.length === 0) {
+                dropdown.innerHTML = '<div style="padding: 10px; color: #666; text-align: center;">No items found</div>';
+                return;
+            }
+
+            availableItems.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.style.cssText = 'padding: 10px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background-color 0.2s;';
+                itemDiv.onmousedown = () => selectItem(item);
+                itemDiv.onmouseover = () => itemDiv.style.backgroundColor = '#f8f9fa';
+                itemDiv.onmouseout = () => itemDiv.style.backgroundColor = 'white';
+                
+                const warehouseClass = `warehouse-${item.warehouse.toLowerCase()}`;
+                
+                // Highlight search term
+                const highlightedName = item.name.replace(new RegExp(searchTerm, 'gi'), match => `<mark style="background: #fff3cd;">${match}</mark>`);
+                
+                itemDiv.innerHTML = `
+                    <div style="font-weight: 600; color: #2c3e50;">${highlightedName}</div>
+                    <div style="font-size: 12px; color: #666; margin-top: 2px;">
+                        <span class="warehouse-badge ${warehouseClass}" style="margin-right: 10px;">${item.warehouse}</span>
+                        Stock: <strong>${item.quantity}</strong> | 
+                        Price: <strong>₹${item.sellingPrice}</strong> | 
+                        Category: ${item.category}
+                    </div>
+                `;
+                dropdown.appendChild(itemDiv);
+            });
+        }
+
+        function selectItem(item) {
+            // Update the hidden select
+            document.getElementById('saleItem').value = item.id;
+            
+            // Update the search input
+            document.getElementById('itemSearchInput').value = `${item.name} (Stock: ${item.quantity}) - ${item.warehouse}`;
+            
+            // Hide dropdown
+            document.getElementById('itemDropdown').style.display = 'none';
+            
+            // Update sale item details
+            updateSaleItemDetails();
+        }
+
+        function showItemDropdown() {
+            const dropdown = document.getElementById('itemDropdown');
+            dropdown.style.display = 'block';
+            populateItemDropdown();
+        }
+
+        function hideItemDropdown() {
+            // Add a small delay to allow for item selection
+            setTimeout(() => {
+                document.getElementById('itemDropdown').style.display = 'none';
+            }, 200);
+        }
+
+        function updateWarehouseStats() {
+            // Initialize warehouse data
+            const warehouseStats = {
+                'A': { items: 0, value: 0 },
+                'B': { items: 0, value: 0 },
+                'C': { items: 0, value: 0 },
+                'Main': { items: 0, value: 0 }
+            };
+
+            // Calculate warehouse statistics
+            inventory.forEach(item => {
+                const warehouse = item.warehouse;
+                if (warehouseStats[warehouse]) {
+                    warehouseStats[warehouse].items += item.quantity;
+                    warehouseStats[warehouse].value += (item.quantity * item.costPrice);
+                }
+            });
+
+            // Update warehouse cards
+            document.getElementById('warehouseAItems').textContent = warehouseStats['A'].items.toLocaleString();
+            document.getElementById('warehouseAValue').textContent = `₹${warehouseStats['A'].value.toLocaleString()}`;
+            
+            document.getElementById('warehouseBItems').textContent = warehouseStats['B'].items.toLocaleString();
+            document.getElementById('warehouseBValue').textContent = `₹${warehouseStats['B'].value.toLocaleString()}`;
+            
+            document.getElementById('warehouseCItems').textContent = warehouseStats['C'].items.toLocaleString();
+            document.getElementById('warehouseCValue').textContent = `₹${warehouseStats['C'].value.toLocaleString()}`;
+            
+            document.getElementById('warehouseMainItems').textContent = warehouseStats['Main'].items.toLocaleString();
+            document.getElementById('warehouseMainValue').textContent = `₹${warehouseStats['Main'].value.toLocaleString()}`;
+        }
+
+        function showWarehouseDetails(warehouseName) {
+            // Filter items for the selected warehouse
+            const warehouseItems = inventory.filter(item => item.warehouse === warehouseName);
+            
+            if (warehouseItems.length === 0) {
+                showAlert(`No items found in ${warehouseName === 'Main' ? 'Main Storage' : 'Warehouse ' + warehouseName}`, 'error');
+                return;
+            }
+
+            // Update title
+            const warehouseDisplayName = warehouseName === 'Main' ? 'Main Storage' : `Warehouse ${warehouseName}`;
+            document.getElementById('warehouseDetailsTitle').textContent = `📦 ${warehouseDisplayName} - Item Details`;
+
+            // Populate table
+            const tbody = document.getElementById('warehouseDetailsTable');
+            tbody.innerHTML = '';
+
+            let totalItems = 0;
+            let totalValue = 0;
+
+            warehouseItems.forEach(item => {
+                const row = document.createElement('tr');
+                const itemValue = item.quantity * item.costPrice;
+                totalItems += item.quantity;
+                totalValue += itemValue;
+                
+                const stockStatus = item.quantity <= item.minStock ? 
+                    '<span style="color: #e74c3c; font-weight: 600;">⚠️ Low Stock</span>' : 
+                    '<span style="color: #27ae60; font-weight: 600;">✅ In Stock</span>';
+                
+                row.innerHTML = `
+                    <td><strong>${item.name}</strong></td>
+                    <td><span class="warehouse-badge warehouse-${item.category.toLowerCase()}">${item.category}</span></td>
+                    <td><strong>${item.quantity}</strong></td>
+                    <td>₹${item.costPrice.toFixed(2)}</td>
+                    <td>₹${item.sellingPrice.toFixed(2)}</td>
+                    <td><strong>₹${itemValue.toFixed(2)}</strong></td>
+                    <td>${item.supplier}</td>
+                    <td>${stockStatus}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Add summary row
+            const summaryRow = document.createElement('tr');
+            summaryRow.style.backgroundColor = '#f8f9fa';
+            summaryRow.style.fontWeight = '600';
+            summaryRow.style.borderTop = '2px solid #dee2e6';
+            summaryRow.innerHTML = `
+                <td><strong>📊 TOTAL</strong></td>
+                <td><strong>${warehouseItems.length} Products</strong></td>
+                <td><strong>${totalItems} Items</strong></td>
+                <td colspan="2" style="text-align: center;"><strong>Total Value</strong></td>
+                <td><strong style="color: #27ae60;">₹${totalValue.toLocaleString()}</strong></td>
+                <td colspan="2"></td>
+            `;
+            tbody.appendChild(summaryRow);
+
+            // Show the details container
+            document.getElementById('warehouseDetailsContainer').style.display = 'block';
+            
+            // Scroll to the details table
+            document.getElementById('warehouseDetailsContainer').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        function hideWarehouseDetails() {
+            document.getElementById('warehouseDetailsContainer').style.display = 'none';
+        }
+
+        // Price List Functions
+        let priceListSortOrder = {};
+
+        function updatePriceList() {
+            updatePriceListStats();
+            updatePriceListTable();
+        }
+
+        function updatePriceListStats() {
+            const totalProducts = inventory.length;
+            const avgPrice = totalProducts > 0 ? inventory.reduce((sum, item) => sum + item.sellingPrice, 0) / totalProducts : 0;
+            const highestPrice = totalProducts > 0 ? Math.max(...inventory.map(item => item.sellingPrice)) : 0;
+            const lowestPrice = totalProducts > 0 ? Math.min(...inventory.map(item => item.sellingPrice)) : 0;
+
+            document.getElementById('totalProducts').textContent = totalProducts;
+            document.getElementById('avgSellingPrice').textContent = `₹${avgPrice.toFixed(2)}`;
+            document.getElementById('highestPrice').textContent = `₹${highestPrice.toFixed(2)}`;
+            document.getElementById('lowestPrice').textContent = `₹${lowestPrice.toFixed(2)}`;
+        }
+
+        function updatePriceListTable() {
+            const tbody = document.getElementById('priceListTable');
+            tbody.innerHTML = '';
+
+            inventory.forEach(item => {
+                const row = document.createElement('tr');
+                const profitMargin = ((item.sellingPrice - item.costPrice) / item.costPrice * 100).toFixed(1);
+                const profitClass = profitMargin > 0 ? 'profit-positive' : 'profit-negative';
+                const warehouseClass = `warehouse-${item.warehouse.toLowerCase()}`;
+                
+                const stockStatus = item.quantity <= item.minStock ? 
+                    '<span style="color: #e74c3c; font-weight: 600;">⚠️ Low Stock</span>' : 
+                    item.quantity > 0 ? '<span style="color: #27ae60; font-weight: 600;">✅ Available</span>' :
+                    '<span style="color: #dc3545; font-weight: 600;">❌ Out of Stock</span>';
+                
+                row.innerHTML = `
+                    <td><strong>${item.name}</strong></td>
+                    <td><span class="warehouse-badge warehouse-${item.category.toLowerCase()}">${item.category}</span></td>
+                    <td><span class="warehouse-badge ${warehouseClass}">${item.warehouse}</span></td>
+                    <td><strong>${item.quantity}</strong></td>
+                    <td>₹${item.costPrice.toFixed(2)}</td>
+                    <td><strong style="color: #27ae60;">₹${item.sellingPrice.toFixed(2)}</strong></td>
+                    <td class="${profitClass}"><strong>${profitMargin}%</strong></td>
+                    <td>${item.supplier}</td>
+                    <td>${stockStatus}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function filterPriceList() {
+            const searchTerm = document.getElementById('priceListSearch').value.toLowerCase();
+            const warehouseFilter = document.getElementById('warehouseFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            
+            const rows = document.querySelectorAll('#priceListTable tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const warehouseMatch = !warehouseFilter || row.cells[2].textContent.includes(warehouseFilter);
+                const categoryMatch = !categoryFilter || row.cells[1].textContent.includes(categoryFilter);
+                const searchMatch = !searchTerm || text.includes(searchTerm);
+                
+                row.style.display = (warehouseMatch && categoryMatch && searchMatch) ? '' : 'none';
+            });
+        }
+
+        function sortPriceList(column) {
+            const tbody = document.getElementById('priceListTable');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Toggle sort order
+            priceListSortOrder[column] = priceListSortOrder[column] === 'asc' ? 'desc' : 'asc';
+            const isAsc = priceListSortOrder[column] === 'asc';
+            
+            rows.sort((a, b) => {
+                let aVal, bVal;
+                
+                switch(column) {
+                    case 'name':
+                        aVal = a.cells[0].textContent.trim();
+                        bVal = b.cells[0].textContent.trim();
+                        break;
+                    case 'category':
+                        aVal = a.cells[1].textContent.trim();
+                        bVal = b.cells[1].textContent.trim();
+                        break;
+                    case 'warehouse':
+                        aVal = a.cells[2].textContent.trim();
+                        bVal = b.cells[2].textContent.trim();
+                        break;
+                    case 'quantity':
+                        aVal = parseInt(a.cells[3].textContent);
+                        bVal = parseInt(b.cells[3].textContent);
+                        break;
+                    case 'costPrice':
+                        aVal = parseFloat(a.cells[4].textContent.replace('₹', ''));
+                        bVal = parseFloat(b.cells[4].textContent.replace('₹', ''));
+                        break;
+                    case 'sellingPrice':
+                        aVal = parseFloat(a.cells[5].textContent.replace('₹', ''));
+                        bVal = parseFloat(b.cells[5].textContent.replace('₹', ''));
+                        break;
+                    case 'profit':
+                        aVal = parseFloat(a.cells[6].textContent.replace('%', ''));
+                        bVal = parseFloat(b.cells[6].textContent.replace('%', ''));
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (typeof aVal === 'string') {
+                    return isAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                } else {
+                    return isAsc ? aVal - bVal : bVal - aVal;
+                }
+            });
+            
+            // Clear and re-append sorted rows
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function exportPriceList() {
+            const warehouseFilter = document.getElementById('warehouseFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const searchTerm = document.getElementById('priceListSearch').value.toLowerCase();
+            
+            // Filter items based on current filters
+            let filteredItems = inventory;
+            
+            if (warehouseFilter) {
+                filteredItems = filteredItems.filter(item => item.warehouse === warehouseFilter);
+            }
+            
+            if (categoryFilter) {
+                filteredItems = filteredItems.filter(item => item.category === categoryFilter);
+            }
+            
+            if (searchTerm) {
+                filteredItems = filteredItems.filter(item => 
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    item.category.toLowerCase().includes(searchTerm) ||
+                    item.warehouse.toLowerCase().includes(searchTerm) ||
+                    item.supplier.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Create CSV content
+            const headers = ['Item Name', 'Category', 'Warehouse', 'Available Stock', 'Cost Price (₹)', 'Selling Price (₹)', 'Profit Margin (%)', 'Supplier', 'Status'];
+            let csvContent = headers.join(',') + '\n';
+            
+            filteredItems.forEach(item => {
+                const profitMargin = ((item.sellingPrice - item.costPrice) / item.costPrice * 100).toFixed(1);
+                const status = item.quantity <= item.minStock ? 'Low Stock' : 
+                              item.quantity > 0 ? 'Available' : 'Out of Stock';
+                
+                const row = [
+                    `"${item.name}"`,
+                    `"${item.category}"`,
+                    `"${item.warehouse}"`,
+                    item.quantity,
+                    item.costPrice.toFixed(2),
+                    item.sellingPrice.toFixed(2),
+                    profitMargin,
+                    `"${item.supplier}"`,
+                    `"${status}"`
+                ];
+                csvContent += row.join(',') + '\n';
+            });
+            
+            // Add summary
+            csvContent += '\n';
+            csvContent += 'SUMMARY\n';
+            csvContent += `Total Products,${filteredItems.length}\n`;
+            csvContent += `Average Selling Price,₹${(filteredItems.reduce((sum, item) => sum + item.sellingPrice, 0) / filteredItems.length).toFixed(2)}\n`;
+            csvContent += `Highest Price,₹${Math.max(...filteredItems.map(item => item.sellingPrice)).toFixed(2)}\n`;
+            csvContent += `Lowest Price,₹${Math.min(...filteredItems.map(item => item.sellingPrice)).toFixed(2)}\n`;
+            csvContent += `Export Date,${new Date().toLocaleDateString()}\n`;
+            
+            // Download CSV
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            const filterSuffix = warehouseFilter || categoryFilter || searchTerm ? 
+                `-${warehouseFilter || 'all'}-${categoryFilter || 'all'}` : '';
+            a.download = `price-list${filterSuffix}-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showAlert('Price list exported successfully!', 'success');
+        }
+
+        function exportCustomerPriceList() {
+            const warehouseFilter = document.getElementById('warehouseFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const searchTerm = document.getElementById('priceListSearch').value.toLowerCase();
+            
+            // Filter items based on current filters
+            let filteredItems = inventory.filter(item => item.quantity > 0); // Only show available items for customers
+            
+            if (warehouseFilter) {
+                filteredItems = filteredItems.filter(item => item.warehouse === warehouseFilter);
+            }
+            
+            if (categoryFilter) {
+                filteredItems = filteredItems.filter(item => item.category === categoryFilter);
+            }
+            
+            if (searchTerm) {
+                filteredItems = filteredItems.filter(item => 
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    item.category.toLowerCase().includes(searchTerm) ||
+                    item.warehouse.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Create customer-friendly CSV content (without cost price and profit margin)
+            const headers = ['Item Name', 'Category', 'Available at Warehouse', 'In Stock', 'Price (₹)', 'Supplier'];
+            let csvContent = headers.join(',') + '\n';
+            
+            filteredItems.forEach(item => {
+                const warehouseDisplay = item.warehouse === 'Main' ? 'Main Storage' : `Warehouse ${item.warehouse}`;
+                const stockDisplay = item.quantity > 50 ? 'High Stock' : 
+                                   item.quantity > 20 ? 'Medium Stock' : 
+                                   item.quantity > 0 ? 'Limited Stock' : 'Out of Stock';
+                
+                const row = [
+                    `"${item.name}"`,
+                    `"${item.category}"`,
+                    `"${warehouseDisplay}"`,
+                    `"${stockDisplay}"`,
+                    item.sellingPrice.toFixed(2),
+                    `"${item.supplier}"`
+                ];
+                csvContent += row.join(',') + '\n';
+            });
+            
+            // Add customer-friendly summary
+            csvContent += '\n';
+            csvContent += '=== PRODUCT CATALOG ===\n';
+            csvContent += `Total Available Products,${filteredItems.length}\n`;
+            csvContent += `Price Range,₹${Math.min(...filteredItems.map(item => item.sellingPrice)).toFixed(2)} - ₹${Math.max(...filteredItems.map(item => item.sellingPrice)).toFixed(2)}\n`;
+            csvContent += `Catalog Date,${new Date().toLocaleDateString()}\n`;
+            csvContent += '\n';
+            csvContent += 'Contact us for bulk orders and special pricing!\n';
+            csvContent += 'All prices are subject to change without notice.\n';
+            
+            // Download CSV
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            const filterSuffix = warehouseFilter || categoryFilter ? 
+                `-${warehouseFilter || 'all'}-${categoryFilter || 'all'}` : '';
+            a.download = `customer-catalog${filterSuffix}-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showAlert('Customer catalog exported successfully!', 'success');
+        }
+
+        function updateDashboard() {
+            // Calculate statistics
+            const totalItems = inventory.reduce((sum, item) => sum + item.quantity, 0);
+            const totalValue = inventory.reduce((sum, item) => sum + (item.quantity * item.costPrice), 0);
+            
+            const today = new Date().toISOString().split('T')[0];
+            const todaySales = sales.filter(sale => sale.saleDate === today);
+            const todaySalesAmount = todaySales.reduce((sum, sale) => sum + sale.totalAmount, 0);
+            const todayProfit = todaySales.reduce((sum, sale) => sum + sale.profit, 0);
+
+            // Update dashboard cards
+            document.getElementById('totalItems').textContent = totalItems.toLocaleString();
+            document.getElementById('totalValue').textContent = `₹${totalValue.toLocaleString()}`;
+            document.getElementById('todaySales').textContent = `₹${todaySalesAmount.toLocaleString()}`;
+            document.getElementById('todayProfit').textContent = `₹${todayProfit.toLocaleString()}`;
+
+            // Update charts and warehouse stats
+            updateSalesChart();
+            updateWarehouseChart();
+            updateWarehouseStats();
+        }
+
+        function updateReports() {
+            // Calculate total statistics
+            const totalSalesAmount = sales.reduce((sum, sale) => sum + sale.totalAmount, 0);
+            const totalProfitAmount = sales.reduce((sum, sale) => sum + sale.profit, 0);
+            
+            const uniqueDays = [...new Set(sales.map(sale => sale.saleDate))].length;
+            const avgDailySales = uniqueDays > 0 ? totalSalesAmount / uniqueDays : 0;
+            
+            const lowStockItems = inventory.filter(item => item.quantity <= item.minStock).length;
+
+            // Update report cards
+            document.getElementById('totalSalesAmount').textContent = `₹${totalSalesAmount.toLocaleString()}`;
+            document.getElementById('totalProfitAmount').textContent = `₹${totalProfitAmount.toLocaleString()}`;
+            document.getElementById('avgDailySales').textContent = `₹${avgDailySales.toLocaleString()}`;
+            document.getElementById('lowStockItems').textContent = lowStockItems;
+
+            // Set default dates for daily report (last 7 days)
+            const today = new Date();
+            const weekAgo = new Date();
+            weekAgo.setDate(today.getDate() - 7);
+            
+            document.getElementById('endDate').value = today.toISOString().split('T')[0];
+            document.getElementById('startDate').value = weekAgo.toISOString().split('T')[0];
+
+            // Update charts and tables
+            updateMonthlyChart();
+            updateCategoryChart();
+            updateLowStockTable();
+            updateDailyReport(); // Auto-generate daily report for last 7 days
+        }
+
+        function updateLowStockTable() {
+            const tbody = document.getElementById('lowStockTable');
+            tbody.innerHTML = '';
+
+            const lowStockItems = inventory.filter(item => item.quantity <= item.minStock);
+            
+            lowStockItems.forEach(item => {
+                const row = document.createElement('tr');
+                const warehouseClass = `warehouse-${item.warehouse.toLowerCase()}`;
+                
+                row.innerHTML = `
+                    <td><strong>${item.name}</strong></td>
+                    <td style="color: #e74c3c; font-weight: 600;">${item.quantity}</td>
+                    <td>${item.minStock}</td>
+                    <td><span class="warehouse-badge ${warehouseClass}">${item.warehouse}</span></td>
+                    <td><span style="color: #e74c3c; font-weight: 600;">⚠️ Reorder Required</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            if (lowStockItems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #27ae60; font-weight: 600;">✅ All items are well stocked!</td></tr>';
+            }
+        }
+
+        function updateDailyReport() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            if (!startDate || !endDate) {
+                showAlert('Please select both start and end dates', 'error');
+                return;
+            }
+
+            if (new Date(startDate) > new Date(endDate)) {
+                showAlert('Start date cannot be after end date', 'error');
+                return;
+            }
+
+            const tbody = document.getElementById('dailyReportTable');
+            tbody.innerHTML = '';
+
+            // Group sales by date
+            const dailyData = {};
+            
+            sales.forEach(sale => {
+                const saleDate = sale.saleDate;
+                if (saleDate >= startDate && saleDate <= endDate) {
+                    if (!dailyData[saleDate]) {
+                        dailyData[saleDate] = {
+                            totalSales: 0,
+                            totalProfit: 0,
+                            itemsSold: 0,
+                            transactions: 0
+                        };
+                    }
+                    
+                    dailyData[saleDate].totalSales += sale.totalAmount;
+                    dailyData[saleDate].totalProfit += sale.profit;
+                    dailyData[saleDate].itemsSold += sale.quantity;
+                    dailyData[saleDate].transactions += 1;
+                }
+            });
+
+            // Sort dates
+            const sortedDates = Object.keys(dailyData).sort((a, b) => new Date(b) - new Date(a));
+
+            if (sortedDates.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #6c757d;">No sales found for the selected date range</td></tr>';
+                return;
+            }
+
+            sortedDates.forEach(date => {
+                const data = dailyData[date];
+                const avgSaleValue = data.totalSales / data.transactions;
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td><strong>${new Date(date).toLocaleDateString()}</strong></td>
+                    <td style="color: #27ae60; font-weight: 600;">₹${data.totalSales.toLocaleString()}</td>
+                    <td style="color: #3498db; font-weight: 600;">₹${data.totalProfit.toLocaleString()}</td>
+                    <td>${data.itemsSold}</td>
+                    <td>${data.transactions}</td>
+                    <td>₹${avgSaleValue.toFixed(2)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Add summary row
+            const totalSales = Object.values(dailyData).reduce((sum, day) => sum + day.totalSales, 0);
+            const totalProfit = Object.values(dailyData).reduce((sum, day) => sum + day.totalProfit, 0);
+            const totalItems = Object.values(dailyData).reduce((sum, day) => sum + day.itemsSold, 0);
+            const totalTransactions = Object.values(dailyData).reduce((sum, day) => sum + day.transactions, 0);
+            
+            const summaryRow = document.createElement('tr');
+            summaryRow.style.backgroundColor = '#f8f9fa';
+            summaryRow.style.fontWeight = '600';
+            summaryRow.innerHTML = `
+                <td><strong>📊 TOTAL</strong></td>
+                <td style="color: #27ae60;"><strong>₹${totalSales.toLocaleString()}</strong></td>
+                <td style="color: #3498db;"><strong>₹${totalProfit.toLocaleString()}</strong></td>
+                <td><strong>${totalItems}</strong></td>
+                <td><strong>${totalTransactions}</strong></td>
+                <td><strong>₹${(totalSales / totalTransactions).toFixed(2)}</strong></td>
+            `;
+            tbody.appendChild(summaryRow);
+        }
+
+        // Chart instances storage
+        let chartInstances = {};
+
+        // Chart Functions
+        function updateSalesChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (chartInstances.salesChart) {
+                chartInstances.salesChart.destroy();
+            }
+            
+            // Get last 7 days data
+            const last7Days = [];
+            const salesData = [];
+            
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                last7Days.push(date.toLocaleDateString());
+                
+                const daySales = sales.filter(sale => sale.saleDate === dateStr)
+                    .reduce((sum, sale) => sum + sale.totalAmount, 0);
+                salesData.push(daySales);
+            }
+
+            chartInstances.salesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: last7Days,
+                    datasets: [{
+                        label: 'Daily Sales (₹)',
+                        data: salesData,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateWarehouseChart() {
+            const ctx = document.getElementById('warehouseChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (chartInstances.warehouseChart) {
+                chartInstances.warehouseChart.destroy();
+            }
+            
+            const warehouseData = {};
+            inventory.forEach(item => {
+                warehouseData[item.warehouse] = (warehouseData[item.warehouse] || 0) + item.quantity;
+            });
+
+            const colors = ['#3498db', '#9b59b6', '#27ae60', '#f39c12'];
+            
+            chartInstances.warehouseChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(warehouseData),
+                    datasets: [{
+                        data: Object.values(warehouseData),
+                        backgroundColor: colors,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateMonthlyChart() {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (chartInstances.monthlyChart) {
+                chartInstances.monthlyChart.destroy();
+            }
+            
+            // Get monthly data for current year
+            const monthlyData = {};
+            const currentYear = new Date().getFullYear();
+            
+            for (let i = 0; i < 12; i++) {
+                const month = new Date(currentYear, i).toLocaleDateString('en-US', { month: 'short' });
+                monthlyData[month] = 0;
+            }
+
+            sales.forEach(sale => {
+                const saleDate = new Date(sale.saleDate);
+                if (saleDate.getFullYear() === currentYear) {
+                    const month = saleDate.toLocaleDateString('en-US', { month: 'short' });
+                    monthlyData[month] += sale.totalAmount;
+                }
+            });
+
+            chartInstances.monthlyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(monthlyData),
+                    datasets: [{
+                        label: 'Monthly Sales (₹)',
+                        data: Object.values(monthlyData),
+                        backgroundColor: 'rgba(52, 152, 219, 0.8)',
+                        borderColor: '#3498db',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCategoryChart() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (chartInstances.categoryChart) {
+                chartInstances.categoryChart.destroy();
+            }
+            
+            const categoryData = {};
+            sales.forEach(sale => {
+                const item = inventory.find(i => i.id == sale.itemId);
+                if (item) {
+                    categoryData[item.category] = (categoryData[item.category] || 0) + sale.totalAmount;
+                }
+            });
+
+            const colors = ['#3498db', '#e74c3c', '#27ae60', '#f39c12', '#9b59b6', '#1abc9c'];
+            
+            chartInstances.categoryChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(categoryData),
+                    datasets: [{
+                        data: Object.values(categoryData),
+                        backgroundColor: colors,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Search Functions
+        function filterInventory() {
+            const searchTerm = document.getElementById('inventorySearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#inventoryTable tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function filterSales() {
+            const searchTerm = document.getElementById('salesSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#salesTable tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        // Utility Functions
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type === 'error' ? 'error' : 'success'}`;
+            alertDiv.textContent = message;
+            
+            const container = document.querySelector('.tab-content.active');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Backup/Restore Functions
+        async function exportData() {
+            try {
+                const response = await fetch(`${API_BASE}/api/backup`);
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `plastic-shop-backup-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showAlert('Backup downloaded successfully!', 'success');
+            } catch (error) {
+                showAlert('Failed to create backup', 'error');
+            }
+        }
+
+                 async function importData(file) {
+             try {
+                 const text = await file.text();
+                 const data = JSON.parse(text);
+                 
+                 const response = await fetch(`${API_BASE}/api/restore`, {
+                     method: 'POST',
+                     headers: {
+                         'Content-Type': 'application/json',
+                     },
+                     body: JSON.stringify(data)
+                 });
+                 
+                 const result = await response.json();
+                 if (result.success) {
+                     await fetchData();
+                     updateDashboard();
+                     updateInventoryTable();
+                     updateSalesTable();
+                     updateSaleItemOptions();
+                     updateReports();
+                     showAlert('Data restored successfully!', 'success');
+                 } else {
+                     throw new Error(result.error);
+                 }
+             } catch (error) {
+                 showAlert('Failed to restore data: ' + error.message, 'error');
+             }
+         }
+
+         function handleFileImport(event) {
+             const file = event.target.files[0];
+             if (file) {
+                 if (confirm('This will replace all current data. Are you sure you want to continue?')) {
+                     importData(file);
+                 }
+                 // Reset the input
+                 event.target.value = '';
+             }
+         }
+    </script>
+</body>
+</html> 
