@@ -5,11 +5,109 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plastic Shop Management System</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        /* Login Page Styles */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-header {
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .login-input {
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .login-btn {
+            padding: 15px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .login-btn:hover {
+            background: linear-gradient(135deg, #2980b9, #1f5f8b);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .login-error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .login-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+
+        /* Hide main app initially */
+        .main-app {
+            display: none;
         }
 
         body {
@@ -146,6 +244,45 @@
             outline: none;
             border-color: #3498db;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        /* Required field styling */
+        .form-group.required label::after {
+            content: " *";
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .form-group.required input,
+        .form-group.required select {
+            border-left: 4px solid #e74c3c;
+            background: linear-gradient(90deg, rgba(231, 76, 60, 0.05) 0%, rgba(255, 255, 255, 1) 10%);
+        }
+
+        .form-group.required input:focus,
+        .form-group.required select:focus {
+            border-color: #3498db;
+            border-left: 4px solid #e74c3c;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-group.required input:valid,
+        .form-group.required select:valid {
+            border-left: 4px solid #27ae60;
+            background: linear-gradient(90deg, rgba(39, 174, 96, 0.05) 0%, rgba(255, 255, 255, 1) 10%);
+        }
+
+        /* Required field indicator */
+        .required-indicator {
+            background: #e74c3c;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 5px;
+            text-transform: uppercase;
         }
 
         .btn {
@@ -381,14 +518,92 @@
             .table-container {
                 overflow-x: auto;
             }
+            
+            .login-box {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+            
+            .login-header h1 {
+                font-size: 1.8em;
+            }
+            
+            .header > div {
+                flex-direction: column !important;
+                text-align: center !important;
+            }
+            
+            .header > div > div:last-child {
+                margin-top: 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h1>🏪 Tirumala Plastic Shop</h1>
+                <p>Management System Login</p>
+            </div>
+            
+            <form class="login-form" onsubmit="handleLogin(event)">
+                <input 
+                    type="text" 
+                    id="username" 
+                    class="login-input" 
+                    placeholder="👤 Username" 
+                    required
+                    autocomplete="username"
+                >
+                
+                <input 
+                    type="password" 
+                    id="password" 
+                    class="login-input" 
+                    placeholder="🔒 Password" 
+                    required
+                    autocomplete="current-password"
+                >
+                
+                <button type="submit" class="login-btn">
+                    🔐 Login
+                </button>
+                
+                <div id="loginError" class="login-error">
+                    ❌ Invalid username or password. Please try again.
+                </div>
+            </form>
+            
+            <div class="login-footer">
+                <p>🔒 Secure Access Only</p>
+                <p style="margin-top: 10px; font-size: 10px;">
+                    Default: admin / admin123<br>
+                    Contact administrator for access
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="main-app">
+        <div class="container">
         <div class="header">
-            <h1>🏪 Plastic Shop Management System</h1>
-            <p>Complete Inventory & Sales Management Solution</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>🏪 Tirumala Plastic shop</h1>
+                    <p>Complete Inventory & Sales Management Solution</p>
+                </div>
+                <div style="text-align: right;">
+                    <p style="font-size: 14px; opacity: 0.8; margin-bottom: 10px;">
+                        👤 Welcome, <span id="currentUserName">User</span>
+                    </p>
+                    <button onclick="logout()" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 12px; transition: all 0.3s;">
+                        🚪 Logout
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div class="nav-tabs">
@@ -430,35 +645,35 @@
                 <canvas id="warehouseChart" width="400" height="200"></canvas>
             </div>
 
-            <div class="chart-container">
-                <h3>📊 Warehouse Details</h3>
-                <div class="stats-grid">
-                    <div class="stat-card warehouse-clickable" onclick="showWarehouseDetails('A')" style="cursor: pointer; transition: transform 0.2s;">
-                        <h3 id="warehouseAItems">0</h3>
-                        <p>Warehouse A - Items</p>
-                        <small id="warehouseAValue" style="color: #27ae60; font-weight: 600;">₹0</small>
-                        <div style="margin-top: 10px; font-size: 12px; color: #666;">🔍 Click to view details</div>
-                    </div>
-                    <div class="stat-card warehouse-clickable" onclick="showWarehouseDetails('B')" style="cursor: pointer; transition: transform 0.2s;">
-                        <h3 id="warehouseBItems">0</h3>
-                        <p>Warehouse B - Items</p>
-                        <small id="warehouseBValue" style="color: #27ae60; font-weight: 600;">₹0</small>
-                        <div style="margin-top: 10px; font-size: 12px; color: #666;">🔍 Click to view details</div>
-                    </div>
-                    <div class="stat-card warehouse-clickable" onclick="showWarehouseDetails('C')" style="cursor: pointer; transition: transform 0.2s;">
-                        <h3 id="warehouseCItems">0</h3>
-                        <p>Warehouse C - Items</p>
-                        <small id="warehouseCValue" style="color: #27ae60; font-weight: 600;">₹0</small>
-                        <div style="margin-top: 10px; font-size: 12px; color: #666;">🔍 Click to view details</div>
-                    </div>
-                    <div class="stat-card warehouse-clickable" onclick="showWarehouseDetails('Main')" style="cursor: pointer; transition: transform 0.2s;">
-                        <h3 id="warehouseMainItems">0</h3>
-                        <p>Main Storage - Items</p>
-                        <small id="warehouseMainValue" style="color: #27ae60; font-weight: 600;">₹0</small>
-                        <div style="margin-top: 10px; font-size: 12px; color: #666;">🔍 Click to view details</div>
+                            <div class="chart-container">
+                    <h3>📊 Warehouse Details</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card warehouse-clickable" onclick="showWarehouseDetails('Sangam')" style="cursor: pointer; transition: transform 0.2s;">
+                            <h3 id="warehouseAItems">0</h3>
+                            <p>Sangam - Items</p>
+                            <small id="warehouseAValue" style="color: #27ae60; font-weight: 600;">₹0</small>
+                            <div style="margin-top: 10px; font-size: 12px; color: #666;">🔍 Click to view details</div>
+                        </div>
+                        <div class="stat-card warehouse-clickable" onclick="showWarehouseDetails('Ramalayam')" style="cursor: pointer; transition: transform 0.2s;">
+                            <h3 id="warehouseBItems">0</h3>
+                            <p>Ramalayam - Items</p>
+                            <small id="warehouseBValue" style="color: #27ae60; font-weight: 600;">₹0</small>
+                            <div style="margin-top: 10px; font-size: 12px; color: #666;">🔍 Click to view details</div>
+                        </div>
+                        <div class="stat-card warehouse-clickable" onclick="showWarehouseDetails('Ava Road')" style="cursor: pointer; transition: transform 0.2s;">
+                            <h3 id="warehouseCItems">0</h3>
+                            <p>Ava Road - Items</p>
+                            <small id="warehouseCValue" style="color: #27ae60; font-weight: 600;">₹0</small>
+                            <div style="margin-top: 10px; font-size: 12px; color: #666;">🔍 Click to view details</div>
+                        </div>
+                        <div class="stat-card warehouse-clickable" onclick="showWarehouseDetails('Stadium Road')" style="cursor: pointer; transition: transform 0.2s;">
+                            <h3 id="warehouseMainItems">0</h3>
+                            <p>Stadium Road - Items</p>
+                            <small id="warehouseMainValue" style="color: #27ae60; font-weight: 600;">₹0</small>
+                            <div style="margin-top: 10px; font-size: 12px; color: #666;">🔍 Click to view details</div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
             <!-- Warehouse Details Table (Initially Hidden) -->
             <div id="warehouseDetailsContainer" class="chart-container" style="display: none;">
@@ -491,31 +706,55 @@
         <div id="inventory" class="tab-content">
             <div class="form-section">
                 <h3 id="formTitle">➕ Add New Item</h3>
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 10px; margin-bottom: 20px; font-size: 13px; color: #856404;">
+                    <strong>📝 Note:</strong> Fields marked with <span style="color: #e74c3c; font-weight: bold;">*</span> are required. Required fields have a red left border.
+                </div>
                 <div class="form-grid">
-                    <div class="form-group">
+                    <div class="form-group required">
                         <label>Item Name</label>
-                        <input type="text" id="itemName" placeholder="Enter item name">
+                        <input type="text" id="itemName" placeholder="Enter item name" required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group required">
                         <label>Category</label>
-                        <select id="itemCategory">
+                        <select id="itemCategory" required>
                             <option value="">Select Category</option>
-                            <option value="Containers">Containers</option>
-                            <option value="Bags">Bags</option>
-                            <option value="Bottles">Bottles</option>
-                            <option value="Packaging">Packaging</option>
-                            <option value="Household">Household</option>
-                            <option value="Industrial">Industrial</option>
+                            <option value="Buckets & Mugs">Buckets & Mugs</option>
+                            <option value="Water Bottles & Jugs">Water Bottles & Jugs</option>
+                            <option value="Storage Containers">Storage Containers (Airtight/Regular)</option>
+                            <option value="Dustbins">Dustbins (Pedal, Swing, Open)</option>
+                            <option value="Kitchenware">Kitchenware (Plates, Bowls, Trays, Masala Boxes)</option>
+                            <option value="Lunch Boxes">Lunch Boxes</option>
+                            <option value="Food Containers">Food Containers</option>
+                            <option value="Chairs & Stools">Chairs & Stools</option>
+                            <option value="Plastic Tables">Plastic Tables</option>
+                            <option value="Laundry Baskets">Laundry Baskets & Multipurpose Bins</option>
+                            <option value="Dish Racks & Organizers">Dish Racks & Organizers</option>
+                            <option value="Hangers">Hangers</option>
+                            <option value="Plant Pots & Gardening">Plant Pots & Gardening Items</option>
+                            <option value="Watering Cans">Watering Cans</option>
+                            <option value="Bathroom Items">Bathroom Items (Soap Dish, Toothbrush Holder, Bath Stool)</option>
+                            <option value="Baby Products">Baby Products (Chairs, Bath Tubs, Toys)</option>
+                            <option value="Office Supplies">Office Supplies (File Holders, Drawers, Pen Stand)</option>
+                            <option value="Crates & Bins">Crates & Bins (Fruit/Vegetable/General Purpose)</option>
+                            <option value="Travel & Utility Baskets">Travel & Utility Baskets</option>
+                            <option value="Shoe Boxes & Travel Mugs">Shoe Boxes & Travel Mugs</option>
+                            <option value="Disposable Items">Disposable Items (Plates, Cups, Spoons)</option>
+                            <option value="Plastic Granules">Plastic Granules (for manufacturing)</option>
+                            <option value="Storage Drums">Storage Drums</option>
+                            <option value="Others">Others</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                                        <div class="form-group required">
                         <label>Warehouse</label>
-                        <select id="itemWarehouse">
+                        <select id="itemWarehouse" required>
                             <option value="">Select Warehouse</option>
-                            <option value="A">Warehouse A</option>
-                            <option value="B">Warehouse B</option>
-                            <option value="C">Warehouse C</option>
-                            <option value="Main">Main Storage</option>
+                            <option value="Sangam">Sangam</option>
+                            <option value="Ramalayam">Ramalayam</option>
+                            <option value="Ava Road">Ava Road</option>
+                            <option value="Stadium Road">Stadium Road</option>
+                            <option value="Mochi Street">Mochi Street</option>
+                            <option value="Silver Trays">Silver Trays</option>
+                            <option value="Trinath">Trinath</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -534,8 +773,8 @@
                                 <input type="number" id="looseItems" placeholder="Loose" min="0" onchange="calculateTotalQuantity()" style="width: 100%;" value="0">
                             </div>
                             <div style="flex: 1; min-width: 120px;">
-                                <label style="font-size: 12px; color: #666;">Total Quantity</label>
-                                <input type="number" id="itemQuantity" placeholder="Total" min="0" onchange="updateBagCalculation()" style="width: 100%; background: #f8f9fa;">
+                                <label style="font-size: 12px; color: #666;">Total Quantity <span style="color: #e74c3c; font-weight: bold;">*</span></label>
+                                <input type="number" id="itemQuantity" placeholder="Total" min="0" onchange="updateBagCalculation()" style="width: 100%; background: #f8f9fa; border-left: 4px solid #e74c3c;" required>
                             </div>
                         </div>
                         <div style="margin-top: 8px;">
@@ -544,13 +783,13 @@
                             <small style="color: #666; font-size: 10px;">• Or enter 115 directly in total quantity</small>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group required">
                         <label>Cost Price (₹)</label>
-                        <input type="number" id="itemCostPrice" placeholder="Enter cost price" min="0" step="0.01">
+                        <input type="number" id="itemCostPrice" placeholder="Enter cost price" min="0" step="0.01" required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group required">
                         <label>Selling Price (₹)</label>
-                        <input type="number" id="itemSellingPrice" placeholder="Enter selling price" min="0" step="0.01">
+                        <input type="number" id="itemSellingPrice" placeholder="Enter selling price" min="0" step="0.01" required>
                     </div>
                     <div class="form-group">
                         <label>Supplier</label>
@@ -596,18 +835,21 @@
         <div id="sales" class="tab-content">
             <div class="form-section">
                 <h3>💰 Record Sale</h3>
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 10px; margin-bottom: 20px; font-size: 13px; color: #856404;">
+                    <strong>📝 Note:</strong> Fields marked with <span style="color: #e74c3c; font-weight: bold;">*</span> are required. Required fields have a red left border.
+                </div>
                 <div class="form-grid">
-                    <div class="form-group">
+                    <div class="form-group required">
                         <label>Select Item</label>
                         <div style="position: relative;">
                             <input type="text" id="itemSearchInput" placeholder="🔍 Search items..." 
-                                   style="width: 100%; padding: 12px; border: 2px solid #dee2e6; border-radius: 8px; font-size: 14px;"
-                                   onkeyup="filterItems()" onfocus="showItemDropdown()" onblur="hideItemDropdown()">
+                                   style="width: 100%; padding: 12px; border: 2px solid #dee2e6; border-radius: 8px; font-size: 14px; border-left: 4px solid #e74c3c; background: linear-gradient(90deg, rgba(231, 76, 60, 0.05) 0%, rgba(255, 255, 255, 1) 10%);"
+                                   onkeyup="filterItems()" onfocus="showItemDropdown()" onblur="hideItemDropdown()" required>
                             <div id="itemDropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; max-height: 200px; overflow-y: auto; z-index: 1000; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                                 <!-- Items will be populated here -->
                             </div>
                         </div>
-                        <select id="saleItem" onchange="updateSaleItemDetails()" style="display: none;">
+                        <select id="saleItem" onchange="updateSaleItemDetails()" style="display: none;" required>
                             <option value="">Select Item</option>
                         </select>
                     </div>
@@ -615,17 +857,17 @@
                         <label>Available Stock</label>
                         <input type="text" id="availableStock" readonly>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group required">
                         <label>Quantity Sold</label>
-                        <input type="number" id="saleQuantity" placeholder="Enter quantity" min="1">
+                        <input type="number" id="saleQuantity" placeholder="Enter quantity" min="1" required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group required">
                         <label>Sale Price per Unit (₹)</label>
-                        <input type="number" id="salePrice" placeholder="Enter sale price" min="0" step="0.01">
+                        <input type="number" id="salePrice" placeholder="Enter sale price" min="0" step="0.01" required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group required">
                         <label>Customer Name</label>
-                        <input type="text" id="customerName" placeholder="Enter customer name">
+                        <input type="text" id="customerName" placeholder="Enter customer name" required>
                     </div>
                     <div class="form-group">
                         <label>Customer Phone Number (Optional)</label>
@@ -635,9 +877,9 @@
                         <label>Customer GST Number (Optional)</label>
                         <input type="text" id="customerGST" placeholder="Enter GST number (e.g., 22AAAAA0000A1Z5)" style="text-transform: uppercase;">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group required">
                         <label>Sale Date</label>
-                        <input type="date" id="saleDate">
+                        <input type="date" id="saleDate" required>
                     </div>
                 </div>
                 <button class="btn btn-success" onclick="recordSale()">💰 Record Sale</button>
@@ -676,21 +918,42 @@
                     <div>
                         <select id="warehouseFilter" onchange="filterPriceList()" style="padding: 12px; border: 2px solid #dee2e6; border-radius: 8px; font-size: 14px;">
                             <option value="">All Warehouses</option>
-                            <option value="A">Warehouse A</option>
-                            <option value="B">Warehouse B</option>
-                            <option value="C">Warehouse C</option>
-                            <option value="Main">Main Storage</option>
+                            <option value="Sangam">Sangam</option>
+                            <option value="Ramalayam">Ramalayam</option>
+                            <option value="Ava Road">Ava Road</option>
+                            <option value="Stadium Road">Stadium Road</option>
+                            <option value="Mochi Street">Mochi Street</option>
+                            <option value="Silver Trays">Silver Trays</option>
+                            <option value="Trinath">Trinath</option>
                         </select>
                     </div>
                     <div>
                         <select id="categoryFilter" onchange="filterPriceList()" style="padding: 12px; border: 2px solid #dee2e6; border-radius: 8px; font-size: 14px;">
                             <option value="">All Categories</option>
-                            <option value="Containers">Containers</option>
-                            <option value="Bags">Bags</option>
-                            <option value="Bottles">Bottles</option>
-                            <option value="Packaging">Packaging</option>
-                            <option value="Household">Household</option>
-                            <option value="Industrial">Industrial</option>
+                            <option value="Buckets & Mugs">Buckets & Mugs</option>
+                            <option value="Water Bottles & Jugs">Water Bottles & Jugs</option>
+                            <option value="Storage Containers">Storage Containers</option>
+                            <option value="Dustbins">Dustbins</option>
+                            <option value="Kitchenware">Kitchenware</option>
+                            <option value="Lunch Boxes">Lunch Boxes</option>
+                            <option value="Food Containers">Food Containers</option>
+                            <option value="Chairs & Stools">Chairs & Stools</option>
+                            <option value="Plastic Tables">Plastic Tables</option>
+                            <option value="Laundry Baskets">Laundry Baskets</option>
+                            <option value="Dish Racks & Organizers">Dish Racks & Organizers</option>
+                            <option value="Hangers">Hangers</option>
+                            <option value="Plant Pots & Gardening">Plant Pots & Gardening</option>
+                            <option value="Watering Cans">Watering Cans</option>
+                            <option value="Bathroom Items">Bathroom Items</option>
+                            <option value="Baby Products">Baby Products</option>
+                            <option value="Office Supplies">Office Supplies</option>
+                            <option value="Crates & Bins">Crates & Bins</option>
+                            <option value="Travel & Utility Baskets">Travel & Utility Baskets</option>
+                            <option value="Shoe Boxes & Travel Mugs">Shoe Boxes & Travel Mugs</option>
+                            <option value="Disposable Items">Disposable Items</option>
+                            <option value="Plastic Granules">Plastic Granules</option>
+                            <option value="Storage Drums">Storage Drums</option>
+                            <option value="Others">Others</option>
                         </select>
                     </div>
                     <div style="display: flex; gap: 10px;">
@@ -817,135 +1080,340 @@
                 </div>
             </div>
 
+         
+
             <div class="form-section">
                 <h3>💾 Data Management</h3>
                 <div style="display: flex; gap: 15px; flex-wrap: wrap;">
                     <button class="btn btn-primary" onclick="exportData()">📥 Download Backup</button>
                     <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleFileImport(event)">
                     <button class="btn btn-success" onclick="document.getElementById('importFile').click()">📤 Restore from Backup</button>
+                    <button class="btn btn-secondary" onclick="syncData()" style="background: #17a2b8;">🔄 Force Sync</button>
                 </div>
                 <p style="margin-top: 15px; color: #6c757d; font-size: 14px;">
-                    💡 <strong>Tip:</strong> Regular backups help protect your data. The backup file contains all inventory and sales data.
+                    💡 <strong>Tip:</strong> Regular backups help protect your data. With Firebase, your data automatically syncs across devices!
                 </p>
             </div>
         </div>
     </div>
+    </div>
 
     <script>
+        // Login System
+        const validCredentials = {
+            'somireddy': 'tirumala@8597',
+            'admin': 'admin@123',
+        };
+
+        let currentUser = null;
+        let sessionTimeout = null;
+        const SESSION_DURATION = 8 * 60 * 60 * 1000; // 8 hours
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            // Validate credentials
+            if (validCredentials[username] && validCredentials[username] === password) {
+                // Successful login
+                currentUser = username;
+                
+                // Store session
+                const sessionData = {
+                    username: username,
+                    loginTime: new Date().toISOString(),
+                    expiryTime: new Date(Date.now() + SESSION_DURATION).toISOString()
+                };
+                localStorage.setItem('tirumalaSession', JSON.stringify(sessionData));
+                
+                // Hide login page and show main app
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                
+                // Start session timeout
+                startSessionTimeout();
+                
+                // Initialize the main application
+                initializeApp();
+                
+                // Clear form
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                errorDiv.style.display = 'none';
+                
+                console.log(`User ${username} logged in successfully`);
+            } else {
+                // Failed login
+                errorDiv.style.display = 'block';
+                document.getElementById('password').value = '';
+                
+                // Auto-hide error after 3 seconds
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                // Clear session
+                localStorage.removeItem('tirumalaSession');
+                currentUser = null;
+                
+                // Clear session timeout
+                if (sessionTimeout) {
+                    clearTimeout(sessionTimeout);
+                    sessionTimeout = null;
+                }
+                
+                // Show login page and hide main app
+                document.getElementById('loginPage').style.display = 'flex';
+                document.getElementById('mainApp').style.display = 'none';
+                
+                console.log('User logged out');
+            }
+        }
+
+        function checkSession() {
+            const sessionData = localStorage.getItem('tirumalaSession');
+            
+            if (sessionData) {
+                try {
+                    const session = JSON.parse(sessionData);
+                    const now = new Date();
+                    const expiryTime = new Date(session.expiryTime);
+                    
+                    if (now < expiryTime) {
+                        // Valid session
+                        currentUser = session.username;
+                        document.getElementById('loginPage').style.display = 'none';
+                        document.getElementById('mainApp').style.display = 'block';
+                        startSessionTimeout();
+                        return true;
+                    } else {
+                        // Expired session
+                        localStorage.removeItem('tirumalaSession');
+                    }
+                } catch (error) {
+                    console.error('Invalid session data:', error);
+                    localStorage.removeItem('tirumalaSession');
+                }
+            }
+            
+            // No valid session
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+            return false;
+        }
+
+        function startSessionTimeout() {
+            // Clear existing timeout
+            if (sessionTimeout) {
+                clearTimeout(sessionTimeout);
+            }
+            
+            // Set new timeout
+            sessionTimeout = setTimeout(() => {
+                alert('Your session has expired. Please login again.');
+                logout();
+            }, SESSION_DURATION);
+        }
+
+        function extendSession() {
+            const sessionData = localStorage.getItem('tirumalaSession');
+            if (sessionData && currentUser) {
+                const session = JSON.parse(sessionData);
+                session.expiryTime = new Date(Date.now() + SESSION_DURATION).toISOString();
+                localStorage.setItem('tirumalaSession', JSON.stringify(session));
+                startSessionTimeout();
+            }
+        }
+
+        // Extend session on user activity
+        document.addEventListener('click', extendSession);
+        document.addEventListener('keypress', extendSession);
+
+        // Firebase Configuration
+        const firebaseConfig = {
+  apiKey: "AIzaSyCYYD4WxA6-d5m_sfeHuORimNcme2Gslw0",
+  authDomain: "thirumalaplastic-827e1.firebaseapp.com",
+  databaseURL: "https://thirumalaplastic-827e1-default-rtdb.firebaseio.com",
+  projectId: "thirumalaplastic-827e1",
+  storageBucket: "thirumalaplastic-827e1.firebasestorage.app",
+  messagingSenderId: "669129008962",
+  appId: "1:669129008962:web:f62b829a276f9ac0084adb",
+  measurementId: "G-BXFDBVCFN1"
+};
+
+        // Initialize Firebase
+        let database;
+        let isFirebaseInitialized = false;
+
+        function initializeFirebase() {
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                database = firebase.database();
+                isFirebaseInitialized = true;
+                console.log('Firebase initialized successfully');
+                return true;
+            } catch (error) {
+                console.error('Firebase initialization failed:', error);
+                showAlert('Firebase connection failed. Using local storage.', 'error');
+                return false;
+            }
+        }
+
         // Data Storage
         let inventory = [];
         let sales = [];
-        const API_BASE = '';
 
-        // API Functions
+        // Firebase Functions
         async function fetchData() {
+            if (!isFirebaseInitialized) {
+                showAlert('❌ Firebase not configured! Please set up Firebase to use the app.', 'error');
+                return { inventory: [], sales: [] };
+            }
+
             try {
-                const response = await fetch(`${API_BASE}/api/data`);
-                const data = await response.json();
-                inventory = data.inventory || [];
-                sales = data.sales || [];
-                return data;
+                console.log('Fetching data from Firebase...');
+                const inventorySnapshot = await database.ref('inventory').once('value');
+                const salesSnapshot = await database.ref('sales').once('value');
+                
+                inventory = inventorySnapshot.val() ? Object.values(inventorySnapshot.val()) : [];
+                sales = salesSnapshot.val() ? Object.values(salesSnapshot.val()) : [];
+                
+                console.log(`Loaded ${inventory.length} items and ${sales.length} sales from Firebase`);
+                
+                return { inventory, sales };
             } catch (error) {
-                console.error('Error fetching data:', error);
-                showAlert('Failed to load data from server', 'error');
+                console.error('Error fetching data from Firebase:', error);
+                showAlert('❌ Failed to connect to Firebase. Please check your internet connection.', 'error');
                 return { inventory: [], sales: [] };
             }
         }
 
-        async function addItemToServer(itemData) {
+        async function addItemToFirebase(itemData) {
+            if (!isFirebaseInitialized) {
+                throw new Error('Firebase not configured! Please set up Firebase first.');
+            }
+
+            const itemId = Date.now(); // Simple ID generation
+            const itemWithId = { ...itemData, id: itemId };
+
             try {
-                const response = await fetch(`${API_BASE}/api/inventory`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(itemData)
-                });
-                const result = await response.json();
-                if (!result.success) {
-                    throw new Error(result.error || 'Failed to add item');
-                }
-                return result.item;
+                console.log('Adding item to Firebase:', itemWithId);
+                await database.ref(`inventory/${itemId}`).set(itemWithId);
+                
+                // Update local array
+                inventory.push(itemWithId);
+                
+                console.log('Item added successfully to Firebase');
+                return itemWithId;
             } catch (error) {
-                console.error('Error adding item:', error);
-                throw error;
+                console.error('Error adding item to Firebase:', error);
+                throw new Error('Failed to add item to Firebase: ' + error.message);
             }
         }
 
-        async function updateItemOnServer(itemId, itemData) {
+        async function updateItemOnFirebase(itemId, itemData) {
+            if (!isFirebaseInitialized) {
+                throw new Error('Firebase not configured! Please set up Firebase first.');
+            }
+
+            const updatedItem = { ...itemData, id: itemId };
+
             try {
-                const response = await fetch(`${API_BASE}/api/inventory/${itemId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(itemData)
-                });
-                const result = await response.json();
-                if (!result.success) {
-                    throw new Error(result.error || 'Failed to update item');
+                console.log('Updating item in Firebase:', updatedItem);
+                await database.ref(`inventory/${itemId}`).set(updatedItem);
+                
+                // Update local array
+                const itemIndex = inventory.findIndex(i => i.id === itemId);
+                if (itemIndex !== -1) {
+                    inventory[itemIndex] = updatedItem;
                 }
-                return result.item;
+                
+                console.log('Item updated successfully in Firebase');
+                return updatedItem;
             } catch (error) {
-                console.error('Error updating item:', error);
-                throw error;
+                console.error('Error updating item in Firebase:', error);
+                throw new Error('Failed to update item in Firebase: ' + error.message);
             }
         }
 
-        async function deleteItemFromServer(itemId) {
+        async function deleteItemFromFirebase(itemId) {
+            if (!isFirebaseInitialized) {
+                throw new Error('Firebase not configured! Please set up Firebase first.');
+            }
+
             try {
-                const response = await fetch(`${API_BASE}/api/inventory/${itemId}`, {
-                    method: 'DELETE'
-                });
-                const result = await response.json();
-                if (!result.success) {
-                    throw new Error(result.error || 'Failed to delete item');
-                }
-                return result;
+                console.log('Deleting item from Firebase:', itemId);
+                await database.ref(`inventory/${itemId}`).remove();
+                
+                // Remove from local array
+                inventory = inventory.filter(item => item.id !== itemId);
+                
+                console.log('Item deleted successfully from Firebase');
+                return { success: true };
             } catch (error) {
-                console.error('Error deleting item:', error);
-                throw error;
+                console.error('Error deleting item from Firebase:', error);
+                throw new Error('Failed to delete item from Firebase: ' + error.message);
             }
         }
 
-        async function addSaleToServer(saleData) {
+        async function addSaleToFirebase(saleData) {
+            if (!isFirebaseInitialized) {
+                throw new Error('Firebase not configured! Please set up Firebase first.');
+            }
+
+            const saleId = Date.now(); // Simple ID generation
+            const saleWithId = { ...saleData, id: saleId };
+
             try {
-                const response = await fetch(`${API_BASE}/api/sales`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(saleData)
-                });
-                const result = await response.json();
-                if (!result.success) {
-                    throw new Error(result.error || 'Failed to record sale');
-                }
-                return result.sale;
+                console.log('Adding sale to Firebase:', saleWithId);
+                await database.ref(`sales/${saleId}`).set(saleWithId);
+                
+                // Update local array
+                sales.push(saleWithId);
+                
+                console.log('Sale added successfully to Firebase');
+                return saleWithId;
             } catch (error) {
-                console.error('Error recording sale:', error);
-                throw error;
+                console.error('Error adding sale to Firebase:', error);
+                throw new Error('Failed to add sale to Firebase: ' + error.message);
             }
         }
 
-        async function deleteSaleFromServer(saleId) {
+        async function deleteSaleFromFirebase(saleId) {
+            if (!isFirebaseInitialized) {
+                throw new Error('Firebase not configured! Please set up Firebase first.');
+            }
+
             try {
-                const response = await fetch(`${API_BASE}/api/sales/${saleId}`, {
-                    method: 'DELETE'
-                });
-                const result = await response.json();
-                if (!result.success) {
-                    throw new Error(result.error || 'Failed to delete sale');
-                }
-                return result;
+                console.log('Deleting sale from Firebase:', saleId);
+                await database.ref(`sales/${saleId}`).remove();
+                
+                // Remove from local array
+                sales = sales.filter(sale => sale.id !== saleId);
+                
+                console.log('Sale deleted successfully from Firebase');
+                return { success: true };
             } catch (error) {
-                console.error('Error deleting sale:', error);
-                throw error;
+                console.error('Error deleting sale from Firebase:', error);
+                throw new Error('Failed to delete sale from Firebase: ' + error.message);
             }
         }
 
         // Initialize the application
-        document.addEventListener('DOMContentLoaded', async function() {
+        async function initializeApp() {
+            // Initialize Firebase first
+            initializeFirebase();
+            
+            // Load data
             await fetchData();
             updateDashboard();
             updateInventoryTable();
@@ -953,6 +1421,28 @@
             updateSaleItemOptions();
             updateReports();
             document.getElementById('saleDate').value = new Date().toISOString().split('T')[0];
+            
+            // Update user name in header
+            if (currentUser) {
+                document.getElementById('currentUserName').textContent = currentUser.charAt(0).toUpperCase() + currentUser.slice(1);
+            }
+            
+            // Show connection status
+            updateFirebaseStatus();
+            if (isFirebaseInitialized) {
+                showAlert('✅ Connected to Firebase! Data will sync across all devices.', 'success');
+            } else {
+                showAlert('❌ Firebase not configured! Please set up Firebase to use the app.', 'error');
+            }
+        }
+
+        // Check session on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkSession()) {
+                // User is already logged in
+                initializeApp();
+            }
+            // If not logged in, login page will be shown by checkSession()
         });
 
         // Tab Management
@@ -1009,8 +1499,8 @@
             };
 
             try {
-                const newItem = await addItemToServer(itemData);
-                inventory.push(newItem);
+                const newItem = await addItemToFirebase(itemData);
+                // Item is already added to inventory array in the Firebase function
                 updateInventoryTable();
                 updateSaleItemOptions();
                 updateDashboard();
@@ -1024,8 +1514,8 @@
         async function deleteItem(id) {
             if (confirm('Are you sure you want to delete this item?')) {
                 try {
-                    await deleteItemFromServer(id);
-                    inventory = inventory.filter(item => item.id !== id);
+                    await deleteItemFromFirebase(id);
+                    // Item is already removed from inventory array in the Firebase function
                     updateInventoryTable();
                     updateSaleItemOptions();
                     updateDashboard();
@@ -1103,13 +1593,8 @@
             };
 
             try {
-                const updatedItem = await updateItemOnServer(itemId, itemData);
-                
-                // Update local inventory
-                const itemIndex = inventory.findIndex(i => i.id === itemId);
-                if (itemIndex !== -1) {
-                    inventory[itemIndex] = updatedItem;
-                }
+                const updatedItem = await updateItemOnFirebase(itemId, itemData);
+                // Item is already updated in inventory array in the Firebase function
 
                 updateInventoryTable();
                 updateSaleItemOptions();
@@ -1187,16 +1672,52 @@
         }
 
         // Sales Management
-        function updateSaleItemDetails() {
+        async function updateSaleItemDetails() {
             const itemId = document.getElementById('saleItem').value;
-            const item = inventory.find(i => i.id == itemId);
             
-            if (item) {
-                document.getElementById('availableStock').value = item.quantity;
-                document.getElementById('salePrice').value = item.sellingPrice;
-            } else {
+            if (!itemId) {
                 document.getElementById('availableStock').value = '';
                 document.getElementById('salePrice').value = '';
+                return;
+            }
+
+            // Refresh data from Firebase to get latest stock
+            if (isFirebaseInitialized) {
+                try {
+                    const itemSnapshot = await database.ref(`inventory/${itemId}`).once('value');
+                    const latestItem = itemSnapshot.val();
+                    
+                    if (latestItem) {
+                        // Update local inventory with latest data
+                        const itemIndex = inventory.findIndex(i => i.id == itemId);
+                        if (itemIndex !== -1) {
+                            inventory[itemIndex] = latestItem;
+                        }
+                        
+                        document.getElementById('availableStock').value = latestItem.quantity;
+                        document.getElementById('salePrice').value = latestItem.sellingPrice;
+                    } else {
+                        document.getElementById('availableStock').value = 'Item not found';
+                        document.getElementById('salePrice').value = '';
+                    }
+                } catch (error) {
+                    console.error('Error fetching latest item data:', error);
+                    // Fallback to local data
+                    const item = inventory.find(i => i.id == itemId);
+                    if (item) {
+                        document.getElementById('availableStock').value = item.quantity;
+                        document.getElementById('salePrice').value = item.sellingPrice;
+                    }
+                }
+            } else {
+                const item = inventory.find(i => i.id == itemId);
+                if (item) {
+                    document.getElementById('availableStock').value = item.quantity;
+                    document.getElementById('salePrice').value = item.sellingPrice;
+                } else {
+                    document.getElementById('availableStock').value = '';
+                    document.getElementById('salePrice').value = '';
+                }
             }
         }
 
@@ -1261,23 +1782,14 @@
             };
 
             try {
-                const newSale = await addSaleToServer(saleData);
+                // First, update the inventory quantity in Firebase
+                const updatedItem = { ...item, quantity: item.quantity - quantity };
+                await updateItemOnFirebase(item.id, updatedItem);
                 
-                // Ensure all fields are present in the sale object
-                // Log the received sale data
-                console.log('Received sale data:', newSale);
+                // Then record the sale
+                const newSale = await addSaleToFirebase(saleData);
                 
-                const completeNewSale = {
-                    ...newSale,
-                    customerPhone: formattedPhone,  // Use the formatted phone number
-                    customerGST: customerGST,      // Use the original GST
-                    itemName: item.name
-                };
-                
-                sales.push(completeNewSale);
-                
-                // Update local inventory
-                item.quantity -= quantity;
+                console.log('Sale recorded and inventory updated successfully');
 
                 updateInventoryTable();
                 updateSalesTable();
@@ -1286,6 +1798,7 @@
                 clearSalesForm();
                 showAlert('Sale recorded successfully!', 'success');
             } catch (error) {
+                console.error('Error recording sale:', error);
                 showAlert(error.message || 'Failed to record sale', 'error');
             }
         }
@@ -1295,20 +1808,24 @@
                 const sale = sales.find(s => s.id === id);
                 if (sale) {
                     try {
-                        await deleteSaleFromServer(id);
-                        
-                        // Restore local inventory
+                        // First, restore the inventory quantity in Firebase
                         const item = inventory.find(i => i.id == sale.itemId);
                         if (item) {
-                            item.quantity += sale.quantity;
+                            const updatedItem = { ...item, quantity: item.quantity + sale.quantity };
+                            await updateItemOnFirebase(item.id, updatedItem);
                         }
                         
-                        sales = sales.filter(s => s.id !== id);
+                        // Then delete the sale
+                        await deleteSaleFromFirebase(id);
+                        
+                        console.log('Sale deleted and inventory restored successfully');
+                        
                         updateInventoryTable();
                         updateSalesTable();
                         updateDashboard();
                         showAlert('Sale deleted and inventory restored!', 'success');
                     } catch (error) {
+                        console.error('Error deleting sale:', error);
                         showAlert(error.message || 'Failed to delete sale', 'error');
                     }
                 }
@@ -1334,22 +1851,29 @@
 
             inventory.forEach(item => {
                 const row = document.createElement('tr');
-                const totalValue = item.quantity * item.costPrice;
-                const stockStatus = item.quantity <= item.minStock ? 
+                
+                // Safely handle all numeric values
+                const quantity = safeNumber(item.quantity, 0);
+                const costPrice = safeNumber(item.costPrice, 0);
+                const sellingPrice = safeNumber(item.sellingPrice, 0);
+                const minStock = safeNumber(item.minStock, 0);
+                const totalValue = quantity * costPrice;
+                
+                const stockStatus = quantity <= minStock ? 
                     '<span style="color: #e74c3c; font-weight: 600;">⚠️ Low Stock</span>' : 
                     '<span style="color: #27ae60; font-weight: 600;">✅ In Stock</span>';
                 
-                const warehouseClass = `warehouse-${item.warehouse.toLowerCase()}`;
+                const warehouseClass = `warehouse-${(item.warehouse || 'main').toLowerCase()}`;
                 
                 row.innerHTML = `
-                    <td><strong>${item.name}</strong></td>
-                    <td>${item.category}</td>
-                    <td><span class="warehouse-badge ${warehouseClass}">${item.warehouse}</span></td>
-                    <td><strong>${item.quantity}</strong></td>
-                    <td>₹${item.costPrice.toFixed(2)}</td>
-                    <td>₹${item.sellingPrice.toFixed(2)}</td>
-                    <td><strong>₹${totalValue.toFixed(2)}</strong></td>
-                    <td>${item.supplier}</td>
+                    <td><strong>${item.name || 'Unknown Item'}</strong></td>
+                    <td>${item.category || 'Uncategorized'}</td>
+                    <td><span class="warehouse-badge ${warehouseClass}">${item.warehouse || 'Main'}</span></td>
+                    <td><strong>${quantity}</strong></td>
+                    <td>${formatCurrency(costPrice)}</td>
+                    <td>${formatCurrency(sellingPrice)}</td>
+                    <td><strong>${formatCurrency(totalValue)}</strong></td>
+                    <td>${item.supplier || 'Unknown'}</td>
                     <td>${stockStatus}</td>
                     <td>
                         <button class="btn btn-primary" onclick="editItem(${item.id})" style="padding: 5px 10px; font-size: 12px; margin-right: 5px;">✏️ Edit</button>
@@ -1366,25 +1890,33 @@
 
             sales.slice().reverse().forEach(sale => {
                 const row = document.createElement('tr');
-                const profitClass = sale.profit >= 0 ? 'profit-positive' : 'profit-negative';
+                
+                // Safely handle all numeric values
+                const quantity = safeNumber(sale.quantity, 0);
+                const salePrice = safeNumber(sale.salePrice, 0);
+                const totalAmount = safeNumber(sale.totalAmount, 0);
+                const costPrice = safeNumber(sale.costPrice, 0);
+                const profit = safeNumber(sale.profit, 0);
+                
+                const profitClass = profit >= 0 ? 'profit-positive' : 'profit-negative';
                 
                 const customerDetails = `
                     <div style="font-size: 13px;">
-                        <strong>${sale.customerName}</strong><br>
+                        <strong>${sale.customerName || 'Unknown Customer'}</strong><br>
                         <span style="color: #666;">📞 ${sale.customerPhone || 'N/A'}</span><br>
                         ${sale.customerGST ? `<span style="color: #007bff; font-size: 11px;">GST: ${sale.customerGST}</span>` : '<span style="color: #999; font-size: 11px;">No GST</span>'}
                     </div>
                 `;
                 
                 row.innerHTML = `
-                    <td>${new Date(sale.saleDate).toLocaleDateString()}</td>
-                    <td><strong>${sale.itemName}</strong></td>
+                    <td>${sale.saleDate ? formatDateDDMMYYYY(sale.saleDate) : 'Unknown Date'}</td>
+                    <td><strong>${sale.itemName || 'Unknown Item'}</strong></td>
                     <td>${customerDetails}</td>
-                    <td>${sale.quantity}</td>
-                    <td>₹${sale.salePrice.toFixed(2)}</td>
-                    <td><strong>₹${sale.totalAmount.toFixed(2)}</strong></td>
-                    <td>₹${sale.costPrice.toFixed(2)}</td>
-                    <td class="${profitClass}">₹${sale.profit.toFixed(2)}</td>
+                    <td>${quantity}</td>
+                    <td>${formatCurrency(salePrice)}</td>
+                    <td><strong>${formatCurrency(totalAmount)}</strong></td>
+                    <td>${formatCurrency(costPrice)}</td>
+                    <td class="${profitClass}">${formatCurrency(profit)}</td>
                     <td>
                         <button class="btn btn-danger" onclick="deleteSale(${sale.id})" style="padding: 5px 10px; font-size: 12px;">🗑️ Delete</button>
                     </td>
@@ -1513,33 +2045,39 @@
         function updateWarehouseStats() {
             // Initialize warehouse data
             const warehouseStats = {
-                'A': { items: 0, value: 0 },
-                'B': { items: 0, value: 0 },
-                'C': { items: 0, value: 0 },
-                'Main': { items: 0, value: 0 }
+                'Sangam': { items: 0, value: 0 },
+                'Ramalayam': { items: 0, value: 0 },
+                'Ava Road': { items: 0, value: 0 },
+                'Stadium Road': { items: 0, value: 0 },
+                'Mochi Street': { items: 0, value: 0 },
+                'Silver Trays': { items: 0, value: 0 },
+                'Trinath': { items: 0, value: 0 }
             };
 
             // Calculate warehouse statistics
             inventory.forEach(item => {
-                const warehouse = item.warehouse;
+                const warehouse = item.warehouse || 'Sangam';
+                const quantity = safeNumber(item.quantity, 0);
+                const costPrice = safeNumber(item.costPrice, 0);
+                
                 if (warehouseStats[warehouse]) {
-                    warehouseStats[warehouse].items += item.quantity;
-                    warehouseStats[warehouse].value += (item.quantity * item.costPrice);
+                    warehouseStats[warehouse].items += quantity;
+                    warehouseStats[warehouse].value += (quantity * costPrice);
                 }
             });
 
-            // Update warehouse cards
-            document.getElementById('warehouseAItems').textContent = warehouseStats['A'].items.toLocaleString();
-            document.getElementById('warehouseAValue').textContent = `₹${warehouseStats['A'].value.toLocaleString()}`;
+            // Update warehouse cards (showing top 4 warehouses)
+            document.getElementById('warehouseAItems').textContent = warehouseStats['Sangam'].items.toLocaleString();
+            document.getElementById('warehouseAValue').textContent = `₹${warehouseStats['Sangam'].value.toLocaleString()}`;
             
-            document.getElementById('warehouseBItems').textContent = warehouseStats['B'].items.toLocaleString();
-            document.getElementById('warehouseBValue').textContent = `₹${warehouseStats['B'].value.toLocaleString()}`;
+            document.getElementById('warehouseBItems').textContent = warehouseStats['Ramalayam'].items.toLocaleString();
+            document.getElementById('warehouseBValue').textContent = `₹${warehouseStats['Ramalayam'].value.toLocaleString()}`;
             
-            document.getElementById('warehouseCItems').textContent = warehouseStats['C'].items.toLocaleString();
-            document.getElementById('warehouseCValue').textContent = `₹${warehouseStats['C'].value.toLocaleString()}`;
+            document.getElementById('warehouseCItems').textContent = warehouseStats['Ava Road'].items.toLocaleString();
+            document.getElementById('warehouseCValue').textContent = `₹${warehouseStats['Ava Road'].value.toLocaleString()}`;
             
-            document.getElementById('warehouseMainItems').textContent = warehouseStats['Main'].items.toLocaleString();
-            document.getElementById('warehouseMainValue').textContent = `₹${warehouseStats['Main'].value.toLocaleString()}`;
+            document.getElementById('warehouseMainItems').textContent = warehouseStats['Stadium Road'].items.toLocaleString();
+            document.getElementById('warehouseMainValue').textContent = `₹${warehouseStats['Stadium Road'].value.toLocaleString()}`;
         }
 
         function showWarehouseDetails(warehouseName) {
@@ -1552,8 +2090,7 @@
             }
 
             // Update title
-            const warehouseDisplayName = warehouseName === 'Main' ? 'Main Storage' : `Warehouse ${warehouseName}`;
-            document.getElementById('warehouseDetailsTitle').textContent = `📦 ${warehouseDisplayName} - Item Details`;
+            document.getElementById('warehouseDetailsTitle').textContent = `📦 ${warehouseName} - Item Details`;
 
             // Populate table
             const tbody = document.getElementById('warehouseDetailsTable');
@@ -1564,22 +2101,29 @@
 
             warehouseItems.forEach(item => {
                 const row = document.createElement('tr');
-                const itemValue = item.quantity * item.costPrice;
-                totalItems += item.quantity;
+                
+                // Safely handle all numeric values
+                const quantity = safeNumber(item.quantity, 0);
+                const costPrice = safeNumber(item.costPrice, 0);
+                const sellingPrice = safeNumber(item.sellingPrice, 0);
+                const minStock = safeNumber(item.minStock, 0);
+                const itemValue = quantity * costPrice;
+                
+                totalItems += quantity;
                 totalValue += itemValue;
                 
-                const stockStatus = item.quantity <= item.minStock ? 
+                const stockStatus = quantity <= minStock ? 
                     '<span style="color: #e74c3c; font-weight: 600;">⚠️ Low Stock</span>' : 
                     '<span style="color: #27ae60; font-weight: 600;">✅ In Stock</span>';
                 
                 row.innerHTML = `
-                    <td><strong>${item.name}</strong></td>
-                    <td><span class="warehouse-badge warehouse-${item.category.toLowerCase()}">${item.category}</span></td>
-                    <td><strong>${item.quantity}</strong></td>
-                    <td>₹${item.costPrice.toFixed(2)}</td>
-                    <td>₹${item.sellingPrice.toFixed(2)}</td>
-                    <td><strong>₹${itemValue.toFixed(2)}</strong></td>
-                    <td>${item.supplier}</td>
+                    <td><strong>${item.name || 'Unknown Item'}</strong></td>
+                    <td><span class="warehouse-badge warehouse-${(item.category || 'uncategorized').toLowerCase()}">${item.category || 'Uncategorized'}</span></td>
+                    <td><strong>${quantity}</strong></td>
+                    <td>${formatCurrency(costPrice)}</td>
+                    <td>${formatCurrency(sellingPrice)}</td>
+                    <td><strong>${formatCurrency(itemValue)}</strong></td>
+                    <td>${item.supplier || 'Unknown'}</td>
                     <td>${stockStatus}</td>
                 `;
                 tbody.appendChild(row);
@@ -1624,14 +2168,25 @@
 
         function updatePriceListStats() {
             const totalProducts = inventory.length;
-            const avgPrice = totalProducts > 0 ? inventory.reduce((sum, item) => sum + item.sellingPrice, 0) / totalProducts : 0;
-            const highestPrice = totalProducts > 0 ? Math.max(...inventory.map(item => item.sellingPrice)) : 0;
-            const lowestPrice = totalProducts > 0 ? Math.min(...inventory.map(item => item.sellingPrice)) : 0;
+            
+            if (totalProducts === 0) {
+                document.getElementById('totalProducts').textContent = '0';
+                document.getElementById('avgSellingPrice').textContent = '₹0.00';
+                document.getElementById('highestPrice').textContent = '₹0.00';
+                document.getElementById('lowestPrice').textContent = '₹0.00';
+                return;
+            }
+            
+            const validPrices = inventory.map(item => safeNumber(item.sellingPrice, 0)).filter(price => price > 0);
+            
+            const avgPrice = validPrices.length > 0 ? validPrices.reduce((sum, price) => sum + price, 0) / validPrices.length : 0;
+            const highestPrice = validPrices.length > 0 ? Math.max(...validPrices) : 0;
+            const lowestPrice = validPrices.length > 0 ? Math.min(...validPrices) : 0;
 
             document.getElementById('totalProducts').textContent = totalProducts;
-            document.getElementById('avgSellingPrice').textContent = `₹${avgPrice.toFixed(2)}`;
-            document.getElementById('highestPrice').textContent = `₹${highestPrice.toFixed(2)}`;
-            document.getElementById('lowestPrice').textContent = `₹${lowestPrice.toFixed(2)}`;
+            document.getElementById('avgSellingPrice').textContent = formatCurrency(avgPrice);
+            document.getElementById('highestPrice').textContent = formatCurrency(highestPrice);
+            document.getElementById('lowestPrice').textContent = formatCurrency(lowestPrice);
         }
 
         function updatePriceListTable() {
@@ -1640,24 +2195,31 @@
 
             inventory.forEach(item => {
                 const row = document.createElement('tr');
-                const profitMargin = ((item.sellingPrice - item.costPrice) / item.costPrice * 100).toFixed(1);
-                const profitClass = profitMargin > 0 ? 'profit-positive' : 'profit-negative';
-                const warehouseClass = `warehouse-${item.warehouse.toLowerCase()}`;
                 
-                const stockStatus = item.quantity <= item.minStock ? 
+                // Safely handle all numeric values
+                const quantity = safeNumber(item.quantity, 0);
+                const costPrice = safeNumber(item.costPrice, 0);
+                const sellingPrice = safeNumber(item.sellingPrice, 0);
+                const minStock = safeNumber(item.minStock, 0);
+                
+                const profitMargin = costPrice > 0 ? ((sellingPrice - costPrice) / costPrice * 100) : 0;
+                const profitClass = profitMargin > 0 ? 'profit-positive' : 'profit-negative';
+                const warehouseClass = `warehouse-${(item.warehouse || 'main').toLowerCase()}`;
+                
+                const stockStatus = quantity <= minStock ? 
                     '<span style="color: #e74c3c; font-weight: 600;">⚠️ Low Stock</span>' : 
-                    item.quantity > 0 ? '<span style="color: #27ae60; font-weight: 600;">✅ Available</span>' :
+                    quantity > 0 ? '<span style="color: #27ae60; font-weight: 600;">✅ Available</span>' :
                     '<span style="color: #dc3545; font-weight: 600;">❌ Out of Stock</span>';
                 
                 row.innerHTML = `
-                    <td><strong>${item.name}</strong></td>
-                    <td><span class="warehouse-badge warehouse-${item.category.toLowerCase()}">${item.category}</span></td>
-                    <td><span class="warehouse-badge ${warehouseClass}">${item.warehouse}</span></td>
-                    <td><strong>${item.quantity}</strong></td>
-                    <td>₹${item.costPrice.toFixed(2)}</td>
-                    <td><strong style="color: #27ae60;">₹${item.sellingPrice.toFixed(2)}</strong></td>
-                    <td class="${profitClass}"><strong>${profitMargin}%</strong></td>
-                    <td>${item.supplier}</td>
+                    <td><strong>${item.name || 'Unknown Item'}</strong></td>
+                    <td><span class="warehouse-badge warehouse-${(item.category || 'uncategorized').toLowerCase()}">${item.category || 'Uncategorized'}</span></td>
+                    <td><span class="warehouse-badge ${warehouseClass}">${item.warehouse || 'Main'}</span></td>
+                    <td><strong>${quantity}</strong></td>
+                    <td>${formatCurrency(costPrice)}</td>
+                    <td><strong style="color: #27ae60;">${formatCurrency(sellingPrice)}</strong></td>
+                    <td class="${profitClass}"><strong>${formatPercentage(profitMargin)}</strong></td>
+                    <td>${item.supplier || 'Unknown'}</td>
                     <td>${stockStatus}</td>
                 `;
                 tbody.appendChild(row);
@@ -1792,7 +2354,7 @@
             csvContent += `Average Selling Price,₹${(filteredItems.reduce((sum, item) => sum + item.sellingPrice, 0) / filteredItems.length).toFixed(2)}\n`;
             csvContent += `Highest Price,₹${Math.max(...filteredItems.map(item => item.sellingPrice)).toFixed(2)}\n`;
             csvContent += `Lowest Price,₹${Math.min(...filteredItems.map(item => item.sellingPrice)).toFixed(2)}\n`;
-            csvContent += `Export Date,${new Date().toLocaleDateString()}\n`;
+            csvContent += `Export Date,${formatDateDDMMYYYY(new Date().toISOString().split('T')[0])}\n`;
             
             // Download CSV
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -1802,7 +2364,9 @@
             
             const filterSuffix = warehouseFilter || categoryFilter || searchTerm ? 
                 `-${warehouseFilter || 'all'}-${categoryFilter || 'all'}` : '';
-            a.download = `price-list${filterSuffix}-${new Date().toISOString().split('T')[0]}.csv`;
+            const today = new Date().toISOString().split('T')[0];
+            const formattedDate = formatDateDDMMYYYY(today).replace(/\//g, '-');
+            a.download = `price-list${filterSuffix}-${formattedDate}.csv`;
             a.click();
             URL.revokeObjectURL(url);
             
@@ -1859,7 +2423,7 @@
             csvContent += '=== PRODUCT CATALOG ===\n';
             csvContent += `Total Available Products,${filteredItems.length}\n`;
             csvContent += `Price Range,₹${Math.min(...filteredItems.map(item => item.sellingPrice)).toFixed(2)} - ₹${Math.max(...filteredItems.map(item => item.sellingPrice)).toFixed(2)}\n`;
-            csvContent += `Catalog Date,${new Date().toLocaleDateString()}\n`;
+            csvContent += `Catalog Date,${formatDateDDMMYYYY(new Date().toISOString().split('T')[0])}\n`;
             csvContent += '\n';
             csvContent += 'Contact us for bulk orders and special pricing!\n';
             csvContent += 'All prices are subject to change without notice.\n';
@@ -1993,22 +2557,28 @@
                 
                 const row = document.createElement('tr');
                 
-                                    const customerDetails = `
-                        <div style="font-size: 13px;">
-                            <strong>${sale.customerName}</strong><br>
-                            <span style="color: #666;">📞 ${sale.customerPhone}</span><br>
-                            <span style="color: #007bff; font-size: 11px;">${sale.customerGST ? `GST: ${sale.customerGST}` : 'No GST'}</span>
-                        </div>
-                    `;
+                // Safely handle all numeric values
+                const quantity = safeNumber(sale.quantity, 0);
+                const salePrice = safeNumber(sale.salePrice, 0);
+                const totalAmount = safeNumber(sale.totalAmount, 0);
+                const profit = safeNumber(sale.profit, 0);
+                
+                const customerDetails = `
+                    <div style="font-size: 13px;">
+                        <strong>${sale.customerName || 'Unknown Customer'}</strong><br>
+                        <span style="color: #666;">📞 ${sale.customerPhone || 'N/A'}</span><br>
+                        <span style="color: #007bff; font-size: 11px;">${sale.customerGST ? `GST: ${sale.customerGST}` : 'No GST'}</span>
+                    </div>
+                `;
                 
                 row.innerHTML = `
-                    <td>${new Date(sale.saleDate).toLocaleDateString()}</td>
+                    <td>${sale.saleDate ? formatDateDDMMYYYY(sale.saleDate) : 'Unknown Date'}</td>
                     <td><strong>${itemName}</strong></td>
                     <td>${customerDetails}</td>
-                    <td>${sale.quantity}</td>
-                    <td>₹${sale.salePrice.toFixed(2)}</td>
-                    <td style="color: #27ae60; font-weight: 600;">₹${sale.totalAmount.toFixed(2)}</td>
-                    <td style="color: ${sale.profit >= 0 ? '#27ae60' : '#e74c3c'}; font-weight: 600;">₹${sale.profit.toFixed(2)}</td>
+                    <td>${quantity}</td>
+                    <td>${formatCurrency(salePrice)}</td>
+                    <td style="color: #27ae60; font-weight: 600;">${formatCurrency(totalAmount)}</td>
+                    <td style="color: ${profit >= 0 ? '#27ae60' : '#e74c3c'}; font-weight: 600;">${formatCurrency(profit)}</td>
                 `;
                 tbody.appendChild(row);
 
@@ -2027,9 +2597,9 @@
 
             // Add grand total row
             const grandTotal = {
-                totalAmount: filteredSales.reduce((sum, sale) => sum + sale.totalAmount, 0),
-                totalProfit: filteredSales.reduce((sum, sale) => sum + sale.profit, 0),
-                totalQuantity: filteredSales.reduce((sum, sale) => sum + sale.quantity, 0)
+                totalAmount: filteredSales.reduce((sum, sale) => sum + safeNumber(sale.totalAmount, 0), 0),
+                totalProfit: filteredSales.reduce((sum, sale) => sum + safeNumber(sale.profit, 0), 0),
+                totalQuantity: filteredSales.reduce((sum, sale) => sum + safeNumber(sale.quantity, 0), 0)
             };
 
             const totalRow = document.createElement('tr');
@@ -2039,8 +2609,8 @@
                 <td colspan="3"><strong>📊 GRAND TOTAL</strong></td>
                 <td><strong>${grandTotal.totalQuantity}</strong></td>
                 <td></td>
-                <td style="color: #27ae60;"><strong>₹${grandTotal.totalAmount.toFixed(2)}</strong></td>
-                <td style="color: ${grandTotal.totalProfit >= 0 ? '#27ae60' : '#e74c3c'};"><strong>₹${grandTotal.totalProfit.toFixed(2)}</strong></td>
+                <td style="color: #27ae60;"><strong>${formatCurrency(grandTotal.totalAmount)}</strong></td>
+                <td style="color: ${grandTotal.totalProfit >= 0 ? '#27ae60' : '#e74c3c'};"><strong>${formatCurrency(grandTotal.totalProfit)}</strong></td>
             `;
             tbody.appendChild(totalRow);
         }
@@ -2065,7 +2635,7 @@
                 const date = new Date();
                 date.setDate(date.getDate() - i);
                 const dateStr = date.toISOString().split('T')[0];
-                last7Days.push(date.toLocaleDateString());
+                last7Days.push(formatDateDDMMYYYY(dateStr));
                 
                 const daySales = sales.filter(sale => sale.saleDate === dateStr)
                     .reduce((sum, sale) => sum + sale.totalAmount, 0);
@@ -2262,6 +2832,38 @@
         }
 
         // Utility Functions
+        
+        function safeNumber(value, defaultValue = 0) {
+            const num = parseFloat(value);
+            return isNaN(num) ? defaultValue : num;
+        }
+        
+        function formatCurrency(value, defaultValue = 0) {
+            const num = safeNumber(value, defaultValue);
+            return `₹${num.toFixed(2)}`;
+        }
+        
+        function formatPercentage(value, defaultValue = 0) {
+            const num = safeNumber(value, defaultValue);
+            return `${num.toFixed(1)}%`;
+        }
+        
+        function formatDateDDMMYYYY(dateString) {
+            if (!dateString) return 'Unknown Date';
+            
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return 'Invalid Date';
+                
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const year = date.getFullYear();
+                
+                return `${day}/${month}/${year}`;
+            } catch (error) {
+                return 'Invalid Date';
+            }
+        }
 
         function showAlert(message, type) {
             const alertDiv = document.createElement('div');
@@ -2279,49 +2881,77 @@
         // Backup/Restore Functions
         async function exportData() {
             try {
-                const response = await fetch(`${API_BASE}/api/backup`);
-                const blob = await response.blob();
+                const backupData = {
+                    inventory: inventory,
+                    sales: sales,
+                    exportDate: new Date().toISOString(),
+                    version: '2.0'
+                };
+                
+                const dataStr = JSON.stringify(backupData, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `plastic-shop-backup-${new Date().toISOString().split('T')[0]}.json`;
+                const today = new Date().toISOString().split('T')[0];
+                const formattedDate = formatDateDDMMYYYY(today).replace(/\//g, '-');
+                a.download = `plastic-shop-backup-${formattedDate}.json`;
                 a.click();
                 URL.revokeObjectURL(url);
                 showAlert('Backup downloaded successfully!', 'success');
             } catch (error) {
-                showAlert('Failed to create backup', 'error');
+                showAlert('Failed to create backup: ' + error.message, 'error');
             }
         }
 
-                 async function importData(file) {
-             try {
-                 const text = await file.text();
-                 const data = JSON.parse(text);
-                 
-                 const response = await fetch(`${API_BASE}/api/restore`, {
-                     method: 'POST',
-                     headers: {
-                         'Content-Type': 'application/json',
-                     },
-                     body: JSON.stringify(data)
-                 });
-                 
-                 const result = await response.json();
-                 if (result.success) {
-                     await fetchData();
-                     updateDashboard();
-                     updateInventoryTable();
-                     updateSalesTable();
-                     updateSaleItemOptions();
-                     updateReports();
-                     showAlert('Data restored successfully!', 'success');
-                 } else {
-                     throw new Error(result.error);
-                 }
-             } catch (error) {
-                 showAlert('Failed to restore data: ' + error.message, 'error');
-             }
-         }
+        async function importData(file) {
+            if (!isFirebaseInitialized) {
+                showAlert('Firebase not configured! Please set up Firebase first.', 'error');
+                return;
+            }
+
+            try {
+                const text = await file.text();
+                const data = JSON.parse(text);
+                
+                if (!data.inventory || !data.sales) {
+                    throw new Error('Invalid backup file format');
+                }
+                
+                console.log('Importing data to Firebase...');
+                
+                // Clear existing data in Firebase
+                await database.ref('inventory').remove();
+                await database.ref('sales').remove();
+                
+                // Upload new data to Firebase
+                for (const item of data.inventory) {
+                    await database.ref(`inventory/${item.id}`).set(item);
+                }
+                
+                for (const sale of data.sales) {
+                    await database.ref(`sales/${sale.id}`).set(sale);
+                }
+                
+                // Update local data
+                inventory = data.inventory;
+                sales = data.sales;
+                
+                console.log('Data imported successfully to Firebase');
+                
+                // Update UI
+                updateDashboard();
+                updateInventoryTable();
+                updateSalesTable();
+                updateSaleItemOptions();
+                updateReports();
+                
+                showAlert('Data restored successfully from backup!', 'success');
+            } catch (error) {
+                console.error('Error importing data:', error);
+                showAlert('Failed to restore data: ' + error.message, 'error');
+            }
+        }
 
          function handleFileImport(event) {
              const file = event.target.files[0];
@@ -2333,6 +2963,46 @@
                  event.target.value = '';
              }
          }
+
+         function updateFirebaseStatus() {
+             const connectedDiv = document.getElementById('firebaseConnected');
+             const disconnectedDiv = document.getElementById('firebaseDisconnected');
+             
+             if (isFirebaseInitialized) {
+                 connectedDiv.style.display = 'block';
+                 disconnectedDiv.style.display = 'none';
+             } else {
+                 connectedDiv.style.display = 'none';
+                 disconnectedDiv.style.display = 'block';
+             }
+         }
+
+         async function syncData() {
+             if (!isFirebaseInitialized) {
+                 showAlert('Firebase is not configured. Please set up Firebase first.', 'error');
+                 return;
+             }
+
+             try {
+                 showAlert('🔄 Syncing data with cloud...', 'success');
+                 
+                 // Force refresh data from Firebase
+                 await fetchData();
+                 
+                 // Update all UI components
+                 updateDashboard();
+                 updateInventoryTable();
+                 updateSalesTable();
+                 updateSaleItemOptions();
+                 updateReports();
+                 
+                 showAlert('✅ Data synced successfully!', 'success');
+             } catch (error) {
+                 showAlert('❌ Sync failed: ' + error.message, 'error');
+             }
+         }
     </script>
+</body>
+</html> 
 </body>
 </html> 
